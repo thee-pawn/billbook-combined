@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3 } from 'lucide-react';
-import marketingPage from '../assets/images/marketingPage.png'
 import icon from '../assets/images/bb_icon.png'
 
 // UI Components
@@ -495,11 +494,11 @@ function LandingPage() {
             </div>
 
             <div className="relative">
-              <img
-                src={marketingPage}
-                alt="BillBookPlus Dashboard"
-                className="rounded-lg shadow-2xl w-full"
-              />
+{/*               <img */}
+{/*                 src={marketingPage} */}
+{/*                 alt="BillBookPlus Dashboard" */}
+{/*                 className="rounded-lg shadow-2xl w-full" */}
+{/*               /> */}
             </div>
           </div>
         </div>
