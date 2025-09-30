@@ -1,0 +1,204 @@
+/* ProfilePage.css */
+.profile-container {
+    background-color: #ffffff; /* White background for the main content */
+    padding: 25px 40px; /* Padding around the content */
+    font-family: Arial, sans-serif; /* Basic font */
+    /* Assuming this component might be placed within a larger layout */
+    /* max-width: 900px; */
+    /* margin: 20px auto; */
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+    /* border-radius: 8px; */
+  }
+  
+  /* Header Section */
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    /* Optional: border-bottom: 1px solid #eee; */
+  }
+  
+  .profile-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+    font-weight: normal;
+  }
+  
+  .header-buttons .btn {
+    margin-left: 10px;
+  }
+  
+  /* General Button Styles */
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  
+  .btn-header {
+    background-color: #4CAF50; /* Green color from screenshot */
+    color: white;
+  }
+  .btn-header:hover {
+    opacity: 0.85;
+  }
+  
+  
+  /* Profile Body Layout */
+  .profile-body {
+    display: flex;
+    gap: 40px; /* Space between picture and details */
+  }
+  
+  /* Profile Picture Section */
+  .profile-picture-section {
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  .profile-picture-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd; /* Optional subtle border */
+  }
+  
+  .edit-icon-button {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    padding: 0;
+  }
+  
+  .edit-icon-button svg {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .edit-icon-button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  
+  /* Profile Details Section */
+  .profile-details-section {
+    flex-grow: 1; /* Take remaining space */
+  }
+  
+  .form-group {
+    display: grid;
+    grid-template-columns: 100px 1fr; /* Adjust label width as needed */
+    gap: 15px; /* Gap between label and block */
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    grid-column: 1 / 2;
+    text-align: left; /* Labels aligned left */
+    font-size: 14px;
+    color: #555;
+    justify-self: start; /* Align label text to the start */
+  }
+  
+  /* Mimic the input/placeholder block style */
+  .form-placeholder-block {
+    grid-column: 2 / 3;
+    background-color: #e9ecef; /* Light grey background */
+    border: 1px solid #ced4da; /* Subtle border */
+    border-radius: 4px;
+    height: 38px; /* Standard input height */
+    width: 30%; /* Full width within its grid cell */
+    box-sizing: border-box;
+  }
+  
+    
+  /* External Links Section */
+  .external-links-group {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: 100px 1fr; /* Align with form groups */
+    gap: 15px 15px; /* Row and column gap */
+  }
+  
+  .external-links-group > label {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2; /* Place label in the first row */
+    font-size: 14px;
+    color: #555;
+    align-self: center; /* Vertically center with the first icon */
+    justify-self: start;
+  }
+  
+  .social-link-item {
+    grid-column: 2 / 3; /* Place items in the second column */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Gap between icon and placeholder block */
+    margin-bottom: 5px; /* Small space between social link rows */
+  }
+  .social-link-item:last-child {
+      margin-bottom: 0;
+  }
+  
+  
+  .social-icon {
+    font-size: 24px; /* Icon size */
+    color: #555;
+    width: 30px; /* Fixed width for alignment */
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .social-placeholder {
+     height: 38px; /* Match other placeholders */
+     flex-grow: 1; /* Take remaining width */
+  }
+  
+  /* Action Buttons Section */
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+    /* Align buttons under the placeholder blocks */
+    padding-left: calc(100px + 15px); /* Label width + gap */
+    margin-top: 30px;
+  }
+  
+  .btn-action {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    text-transform: capitalize; /* Match 'save' / 'Discard' casing */
+    padding: 8px 25px; /* Slightly wider buttons */
+  }
+  .btn-action:hover {
+      opacity: 0.85;
+  }
+  
+  /* Optional: Specific styles for discard if needed */
+  /* .btn-discard {
+    background-color: #6c757d; // Grey
+  } */

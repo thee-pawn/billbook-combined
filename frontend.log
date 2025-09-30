@@ -1,0 +1,98 @@
+
+> react-tailwind@6.0.0 start
+> vite --port 3001
+
+
+  VITE v6.1.0  ready in 314 ms
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/custom.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/custom.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Sidebar.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Sidebar.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Filter.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Filter.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Header.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Header.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Filter.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Filter.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Header.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Header.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Customer.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Sidebar.css
+/Users/pawankumar/billbook-combined/frontend/src/css/Sidebar.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+/Users/pawankumar/billbook-combined/frontend/src/css/CustomerTable.css
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+8  |    }
+9  |  }
+10 |  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap');
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |  .pointer-events-auto {
+12 |    pointer-events: auto;
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+8  |    }
+9  |  }
+10 |  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap');
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |  .pointer-events-auto {
+12 |    pointer-events: auto;
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/tailwind.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/custom.css
+/Users/pawankumar/billbook-combined/frontend/src/styles/custom.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+/Users/pawankumar/billbook-combined/frontend/src/App.css
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+8  |    }
+9  |  }
+10 |  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap');
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |  .pointer-events-auto {
+12 |    pointer-events: auto;
+4:57:36 PM [vite] (client) page reload electron-dist/mac/LICENSES.chromium.html
+4:57:36 PM [vite] (client) page reload electron-dist/mac/LICENSES.chromium.html
+5:00:04 PM [vite] (client) page reload electron-dist/mac/LICENSES.chromium.html
+5:00:05 PM [vite] (client) page reload electron-dist/mac/LICENSES.chromium.html
+5:00:05 PM [vite] (client) page reload electron-dist/mac/LICENSES.chromium.html
+5:09:11 PM [vite] http proxy error: /api/v1/stores/6de9be26-97a2-446e-85c1-9b625d270943
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:09:11 PM [vite] http proxy error: /api/v1/stores
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:09:11 PM [vite] http proxy error: /api/v1/stores/6de9be26-97a2-446e-85c1-9b625d270943/receipt-settings
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)

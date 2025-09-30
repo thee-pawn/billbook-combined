@@ -1,0 +1,25 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+  }
+  
+  .div1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  .div2 {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  
+  .div3 {
+    margin-top: 50px; /* Adjust spacing as needed */
+    width: 100%;
+    text-align: center;
+  }
+  

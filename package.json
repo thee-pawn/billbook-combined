@@ -1,0 +1,196 @@
+{
+  "name": "react-tailwind",
+  "version": "6.0.0",
+  "description": "React and Tailwind CSS Starter Kit",
+  "keywords": [
+    "vite",
+    "react",
+    "tailwindcss"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Amit Agarwal",
+    "email": "amit@labnol.org",
+    "url": "https://digitalinspiration.com/"
+  },
+  "type": "module",
+  "main": "electron-integrated.cjs",
+  "homepage": "./",
+  "scripts": {
+    "build": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:prod": "vite build --mode production",
+    "dev": "vite --mode development",
+    "dev:staging": "vite --mode staging",
+    "inline": "INLINE=true vite build",
+    "preview": "vite preview",
+    "start": "vite",
+    "netlify-build": "bash netlify-deploy.sh",
+    "electron": "electron electron.cjs",
+    "electron-dev": "concurrently \"npm run start -- --port 3001\" \"wait-on http://localhost:3001 && electron electron.cjs\"",
+    "build-electron": "npm run build && electron electron.cjs",
+    "dist": "npm run build && electron-builder",
+    "dist-mac": "npm run build && electron-builder --mac",
+    "dist-win": "npm run build && electron-builder --win",
+    "dist-win-portable": "npm run build && electron-builder --win --config.nsis.oneClick=false --config.nsis.allowToChangeInstallationDirectory=true",
+    "pack": "npm run build && electron-builder --dir",
+    "pack-win": "npm run build && electron-builder --win --dir"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "not ie 11"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/vite": "^4.0.4",
+    "antd": "^5.24.3",
+    "chart.js": "^4.4.9",
+    "framer-motion": "^12.5.0",
+    "lucide-react": "^0.479.0",
+    "react": "^18.3.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.3.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.3.0",
+    "react-table": "^7.8.0",
+    "tailwindcss": "^4.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-is-dev": "^2.0.0",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "vite": "^6.1.0",
+    "vite-plugin-singlefile": "^2.1.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "build": {
+    "appId": "com.billbook.app",
+    "productName": "BillBook",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-integrated.cjs",
+      "src/assets/images/bb_icon.png",
+      "!node_modules/@tailwindcss/oxide-*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!node_modules/**/*",
+          "!data/**/*",
+          "!*.log",
+          "!*.pid"
+        ]
+      }
+    ],
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "npmRebuild": false,
+    "asarUnpack": "**/*.node",
+    "mac": {
+      "icon": "src/assets/images/bb_icon.png",
+      "category": "public.app-category.business",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "gatekeeperAssess": false,
+      "hardenedRuntime": false
+    },
+    "win": {
+      "icon": "src/assets/images/bb_icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "src/assets/images/bb_icon.png",
+      "uninstallerIcon": "src/assets/images/bb_icon.png",
+      "installerHeaderIcon": "src/assets/images/bb_icon.png",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BillBook"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "dmg": {
+      "title": "BillBook Installer",
+      "icon": "src/assets/images/bb_icon.png",
+      "background": "src/assets/images/BillBookP.png",
+      "window": {
+        "width": 600,
+        "height": 400
+      },
+      "contents": [
+        {
+          "x": 150,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 450,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "icon": "src/assets/images/bb_icon.png",
+      "target": "AppImage"
+    }
+  }
+}

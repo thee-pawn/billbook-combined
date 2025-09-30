@@ -1,0 +1,79 @@
+.customers-container {
+    position: relative;
+  }
+  
+  .customer-form {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 400px; /* Adjust the width as needed */
+    background-color: white;
+    box-shadow: 10 10 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    z-index: 10;
+  }
+  
+  .customer-table {
+    margin-right:0px; /* Adjust the margin to make space for the form */
+  }
+
+  .add-customer-button {
+    font-size: 14px;
+    background-color: rgb(72, 68, 68);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    float: right;
+    border: 2px solid rgb(72, 68, 68);
+    border-radius: 3px;
+  }
+
+  .customer-heading {
+    font-size: 24px;
+    font-weight: 500;
+    float: left;
+  }
+
+  .customer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .content-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .filter-container {
+    margin-bottom: 2rem;
+  }
+  
+  .table-container {
+    flex-grow: 1;
+  }
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of everything */
+    padding-top: 10vh;    /* 10% screen height top margin */
+    padding-bottom: 10vh; /* 10% screen height bottom margin */
+    box-sizing: border-box; /* Include padding in the element's total width and height */
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    width: 80%; /* Adjust as needed */
+    max-width: 600px; /* Maximum width */
+  }

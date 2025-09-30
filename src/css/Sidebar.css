@@ -1,0 +1,72 @@
+/* Sidebar.css */
+
+.sidebar {
+    width: fit-content;
+    height: 100vh;
+    background-color: rgb(8, 157, 157);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    z-index: 50;
+    position: sticky;
+  }
+  
+  .sidebar.expanded {
+    width: fit-content;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 1rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: white;
+  }
+  .sidebar-item-logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    position: sticky;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    top: 0;
+    z-index: 10; /* Ensure it's above other sidebar items */
+  }
+  .sidebar-profile {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 1rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 4rem;
+  }
+  .sidebar-item:hover {
+    background-color: #fbfbfb;
+    color: #2c3e50;
+    width: 100%;
+    border-radius: 6px;
+    transition-duration: 100ms;
+  }
+  
+  .sidebar-icon {
+    font-size: 1.5rem;
+  }
+  
+  .sidebar-item-name {
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 1rem;
+  }
