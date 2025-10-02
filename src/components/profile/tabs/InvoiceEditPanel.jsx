@@ -6,6 +6,7 @@ import Invoice from '../../billing/Invoice';
 
 const InvoiceEditPanel = () => {
     const { currentStore } = useStore();
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [hasChanges, setHasChanges] = useState(false);
@@ -49,7 +50,7 @@ const InvoiceEditPanel = () => {
             try {
                 // Use the direct API call instead of the getReceiptSettings helper
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/api/v1/stores/${currentStore.id}/receipt-settings`, {
+                const response = await fetch(`${API_BASE_URL}/api/v1/stores/${currentStore.id}/receipt-settings`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -155,7 +156,7 @@ const InvoiceEditPanel = () => {
             };
 
 
-            const response = await fetch(`http://localhost:3000/api/v1/stores/${currentStore.id}/receipt-settings`, {
+            const response = await fetch(`${API_BASE_URL}/api/v1/stores/${currentStore.id}/receipt-settings`, {
                 method: 'PUT', // or POST - check which method the API expects
                 headers: {
                     'Content-Type': 'application/json',
