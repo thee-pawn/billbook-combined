@@ -29,12 +29,25 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [otpMessage, setOtpMessage] = useState("");
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // State for API data
   const [userId, setUserId] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   // This useEffect is no longer needed since we're navigating directly to home
   // and StoreContext will handle loading stores when needed
 
@@ -236,9 +249,9 @@ const Login = () => {
 
   // --- MAIN RENDER FUNCTION ---
   return (
-    <div className="min-h-screen grid sm:grid-cols-1 md:grid-cols-2 bg-gray-100 font-sans">
-      {/* Left Panel - Feature Carousel */}
-      <FeatureCarousel features={features} />
+    <div className={`min-h-screen bg-gray-100 font-sans ${isDesktop ? 'grid md:grid-cols-2' : 'flex'}`}>
+      {/* Left Panel - Feature Carousel - Only show on desktop */}
+      {isDesktop && <FeatureCarousel features={features} />}
 
       {/* Right Panel - Auth Forms */}
       <div className="bg-teal-500 flex justify-center items-center py-8 px-4 relative">
@@ -303,4 +316,3 @@ const Login = () => {
 };
 
 export default Login;
-

@@ -1,20 +1,24 @@
-// tailwind.config.js
+// tailwind.config.js (located inside src/)
+// Root cause note: Because this config file lived inside src/, the old content paths like "./src/**/*" pointed to src/src/** which doesn't exist.
+// That prevented Tailwind from seeing your component class names (hidden, md:flex, etc.), so those utilities were purged/not generated.
+// Fixed by changing globs to look in the current directory (./**/*) and stepping up for public/index.html & root index.html.
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}", // Adjust this to match your project structure
-    "./public/index.html",
+    "./**/*.{js,jsx,ts,tsx}",     // all source files within src
+    "../public/index.html",       // public HTML one level up
+    "../index.html"               // root index.html (if used)
   ],
   theme: {
     extend: {
-          screens: {
-            'sm': '640px', // Default
-            'md': '768px', // Default
-            'lg': '1024px', // Default
-            'xl': '1280px', // Default
-            '2xl': '1536px', // Default
-            '3xl': '1920px', // Custom breakpoint for larger screens
+      screens: {
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
+        '3xl': '1920px',
       },
     },
   },
-  plugins: [],
-}
+  plugins: [], // plugins are loaded via @plugin directives in tailwind.css (v4 style)
+};

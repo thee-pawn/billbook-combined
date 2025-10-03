@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3 } from 'lucide-react';
 import icon from '../assets/images/bb_icon.png'
+import marketingPage from '../assets/images/marketingPage.png';
 
 // UI Components
 const Button = ({ children, className = '', variant = 'primary', size = 'md', onClick, ...props }) => {
@@ -98,6 +99,7 @@ function LandingPage() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isFreeTrialModalOpen, setIsFreeTrialModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     contactNumber: '',
@@ -313,28 +315,28 @@ function LandingPage() {
 
   const reviews = [
     {
-      name: "Sarah Johnson",
-      role: "Clinic Manager",
-      company: "HealthFirst Medical",
+      name: "Shailendra",
+      role: "Salon Owner",
+      company: "",
       rating: 5,
-      comment: "BillBookPlus transformed our clinic operations. Appointment scheduling is now seamless and our billing efficiency increased by 300%.",
+      comment: "I have 2 salons in different places and both the salons can be easily managed with BillbookPlus software. Its service and support system is very good.",
       avatar: "SJ"
     },
     {
-      name: "Michael Chen",
-      role: "Restaurant Owner",
+      name: "Urmila Devi",
+      role: "Salon Owner",
       company: "Chen's Bistro",
       rating: 5,
-      comment: "The inventory management feature saved us thousands in waste. We always know exactly what we have in stock.",
-      avatar: "MC"
+      comment: "One of the best software it has many features which helps us to do our work easily… Also the team is very helpful… Thanks a lot for guiding us.",
+      avatar: "UD"
     },
     {
-      name: "Lisa Rodriguez",
-      role: "HR Director",
-      company: "TechStart Inc.",
+      name: "Mas Studio",
+      role: "Salon Owner",
+      company: "Mas Studio Ranchi",
       rating: 5,
-      comment: "Managing our growing team became effortless with BillBookPlus HRMS. Payroll processing time reduced from days to hours.",
-      avatar: "LR"
+      comment: "BillBookplus Salon Software is very simple and easy to use.",
+      avatar: "MS"
     }
   ];
 
@@ -414,6 +416,24 @@ function LandingPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Any other startup logic can remain; removed nav debug logger
+    }
+  }, []);
+
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -427,13 +447,15 @@ function LandingPage() {
               <span className="text-xl text-teal-700 font-semibold">BillBookPlus</span>
             </div>
             
-            <nav className="sm:hidden md:flex items-center space-x-8">
-              <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-gray-900 transition-colors">Features</button>
-              <button onClick={() => scrollToSection('pricing')} className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</button>
-              <button onClick={() => scrollToSection('reviews')} className="text-gray-600 hover:text-gray-900 transition-colors">Reviews</button>
-              <Button variant="outline" size="sm" onClick={handleContactSales}>Contact Sales</Button>
-              <Button size="sm" onClick={handleLogin}>Login</Button>
-            </nav>
+            {isDesktop && (
+              <nav className="flex items-center space-x-8">
+                <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-gray-900 transition-colors">Features</button>
+                <button onClick={() => scrollToSection('pricing')} className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</button>
+                <button onClick={() => scrollToSection('reviews')} className="text-gray-600 hover:text-gray-900 transition-colors">Reviews</button>
+                <Button variant="outline" size="sm" onClick={handleContactSales}>Contact Sales</Button>
+                <Button size="sm" onClick={handleLogin}>Login</Button>
+              </nav>
+            )}
 
             <button 
               className="md:hidden"
@@ -494,11 +516,11 @@ function LandingPage() {
             </div>
 
             <div className="relative">
-{/*               <img */}
-{/*                 src={marketingPage} */}
-{/*                 alt="BillBookPlus Dashboard" */}
-{/*                 className="rounded-lg shadow-2xl w-full" */}
-{/*               /> */}
+              <img
+                src={marketingPage}
+                alt="BillBookPlus Dashboard"
+                className="rounded-lg shadow-2xl w-full"
+              />
             </div>
           </div>
         </div>
