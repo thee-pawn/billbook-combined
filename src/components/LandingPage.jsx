@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3 } from 'lucide-react';
 import icon from '../assets/images/bb_icon.png'
-import marketingPage from '../assets/images/marketingPage.png';
+import marketingPage from '../assets/images/MarketingPage.png';
 
 // UI Components
 const Button = ({ children, className = '', variant = 'primary', size = 'md', onClick, ...props }) => {
@@ -515,13 +515,15 @@ function LandingPage() {
               </div>
             </div>
 
-            <div className="relative">
-              <img
-                src={marketingPage}
-                alt="BillBookPlus Dashboard"
-                className="rounded-lg shadow-2xl w-full"
-              />
-            </div>
+            {isDesktop && (
+              <div className="relative">
+                <img
+                  src={marketingPage}
+                  alt="BillBookPlus Dashboard"
+                  className="rounded-lg shadow-2xl w-full"
+                />
+              </div>
+            )}
           </div>
         </div>
       </section>
