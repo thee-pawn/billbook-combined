@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3 } from 'lucide-react';
+import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3, Loader2 } from 'lucide-react';
 import icon from '../assets/images/bb_icon.png'
 import marketingPage from '../assets/images/MarketingPage.png';
+import { salesQueriesApi } from '../apis/salesQueriesApi';
 
 // UI Components
 const Button = ({ children, className = '', variant = 'primary', size = 'md', onClick, ...props }) => {
@@ -100,6 +101,8 @@ function LandingPage() {
   const [isFreeTrialModalOpen, setIsFreeTrialModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [formData, setFormData] = useState({
     name: '',
     contactNumber: '',
@@ -406,10 +409,48 @@ function LandingPage() {
     return verticallyVisible && horizontallyVisible;
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setFormData({ name: '', contactNumber: '', email: '', query: '' });
-    setIsContactModalOpen(false);
+    setIsSubmitting(true);
+    setSubmitStatus({ type: '', message: '' });
+
+    try {
+      // Prepare data for API call
+      const queryData = {
+        name: formData.name.trim(),
+        query: formData.query.trim() || `Customer inquiry from ${formData.name}. Contact details: ${formData.contactNumber}${formData.email ? `, ${formData.email}` : ''}`,
+        phoneNumber: formData.contactNumber.trim(),
+        email: formData.email.trim()
+      };
+
+      // Call the sales queries API
+      const response = await salesQueriesApi.createQuery(queryData);
+
+      if (response.success) {
+        // Success feedback
+        setSubmitStatus({
+          type: 'success',
+          message: 'Thank you! Your query has been submitted successfully. Our sales team will contact you soon.'
+        });
+
+        // Clear form after successful submission
+        setTimeout(() => {
+          setFormData({ name: '', contactNumber: '', email: '', query: '' });
+          setSubmitStatus({ type: '', message: '' });
+          setIsContactModalOpen(false);
+        }, 2000);
+      } else {
+        throw new Error('Failed to submit query');
+      }
+    } catch (error) {
+      console.error('Error submitting sales query:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: error.message || 'Failed to submit your query. Please try again or contact us directly.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field, value) => {
@@ -733,7 +774,7 @@ function LandingPage() {
             <DialogTitle>Contact Sales</DialogTitle>
             <DialogDescription>Get in touch with our sales team to learn more about BillBookPlus.</DialogDescription>
           </DialogHeader>
-          
+
           {/* Support Contact Information */}
           <div className="py-4">
             <h4 className="font-semibold mb-3">Contact Our Sales Team At</h4>
@@ -804,9 +845,14 @@ function LandingPage() {
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full">
-                Submit Query
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Submit Query'}
               </Button>
+              {submitStatus.message && (
+                <p className={`mt-4 text-sm ${submitStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                  {submitStatus.message}
+                </p>
+              )}
             </div>
           </form>
         </DialogContent>
