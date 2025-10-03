@@ -338,7 +338,7 @@ function LandingPage() {
       role: "Salon Owner",
       company: "Mas Studio Ranchi",
       rating: 5,
-      comment: "BillBookplus Salon Software is very simple and easy to use.",
+      comment: "BillBookPlus Salon Software is very simple and easy to use.",
       avatar: "MS"
     }
   ];
@@ -485,7 +485,7 @@ function LandingPage() {
               <div className="h-8 w-8 flex items-center justify-center">
                 <img src={icon} />
               </div>
-              <span className="text-xl text-teal-700 font-semibold">BillBookPlus</span>
+              <span className="text-xl text-teal-700 font-semibold" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</span>
             </div>
             
             {isDesktop && (
@@ -529,7 +529,7 @@ function LandingPage() {
               <div className="space-y-4">
                 <div className='flex flex-row justify-center'>
                   <span className='w-24 h-24'><img src={icon} /></span>
-                  <h1 className=" pl-8 text-4xl lg:text-6xl font-bold leading-tight text-teal-700">BillBookPlus</h1>
+                  <h1 className=" pl-8 text-4xl lg:text-6xl font-bold leading-tight text-teal-700" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</h1>
                 </div>
                 <h2 className=" text-4xl lg:text-6xl font-bold leading-tight">
                   All-in-One Business Management Solution
@@ -784,7 +784,7 @@ function LandingPage() {
                   <Mail className="h-4 w-4 text-teal-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">sales.bbplus@gmail.com</p>
+                  <p className="text-sm text-gray-600">sales@billbookplus.com</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -882,8 +882,8 @@ function LandingPage() {
                   <Mail className="h-4 w-4 text-teal-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Sales Email</p>
-                  <p className="text-sm text-gray-600">sales@billbookplus.com</p>
+                  <p className="text-sm font-medium text-left">Sales Email</p>
+                  <p className="text-sm text-gray-600 text-left">support@billbookplus.com</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -891,8 +891,8 @@ function LandingPage() {
                   <Phone className="h-4 w-4 text-teal-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Sales Phone</p>
-                  <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
+                  <p className="text-sm font-medium text-left">Sales Phone</p>
+                  <p className="text-sm text-gray-600 text-left">+9919608163637</p>
                 </div>
               </div>
             </div>
@@ -924,11 +924,15 @@ function LandingPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex sm:flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">
-              <div className="h-6 w-6 bg-teal-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-xs">B+</span>
+              <div className="h-6 w-6 flex items-center justify-center">
+                <img src={icon} className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">BillBookPlus</span>
+              <span className="font-semibold" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</span>
             </div>
+                <p className="flex gap-2">
+                    <Mail className="h-6 w-6 text-teal-600" /> support@billbookplus.com
+                    <Phone className="h-6 w-6 text-teal-600" /> +919608163637
+                </p>
             <p className="text-sm text-gray-600">
               © 2024 BillBookPlus. All rights reserved.
             </p>
