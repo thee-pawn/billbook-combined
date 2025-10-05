@@ -140,8 +140,8 @@ const Login = () => {
       const response = await authApi.register(userData);
       
       setUserId(response.data.userId);
-      setPhoneNumber(userData.data.phoneNumber); // Store the phone number
-      setOtpMessage(`OTP sent to ${userData.data.phoneNumber}.`);
+      setPhoneNumber(response.data.phoneNumber); // Store the phone number
+      setOtpMessage(`OTP sent to ${response.data.phoneNumber}.`);
       setStep(4); // Move to OTP verification
     } catch (error) {
       handleApiError(error);
@@ -194,16 +194,16 @@ const Login = () => {
       }
 
       if (step === 2) { 
-        setUserId(response.data.user.id);
+        setUserId(response.data.userId);
         await login(response.data.authToken, null, response.data.user);
       }
       else if (step === 4) { // Signup OTP success -> go to set password
-        setUserId(response.data.user.id); // Update userId from the response
+        setUserId(response.data.userId); // Update userId from the response
         setAuthToken(response.data.authToken);
         setStep(5);
       }
       else if (step === 7) { // Reset OTP success -> go to reset password
-        setUserId(response.data.user.id); // Update userId from the response
+        setUserId(response.data.userId); // Update userId from the response
         setAuthToken(response.data.authToken);
         setStep(8);
       }
