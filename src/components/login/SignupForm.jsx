@@ -57,7 +57,7 @@ const SignupForm = ({ onSubmit, isLoading, errorMessage, onBack }) => {
       <FormInput
         type="email"
         name="email"
-        placeholder="Email (Optional)"
+        placeholder="Email"
         value={signupData.email}
         onChange={handleChange}
       />
