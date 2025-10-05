@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3, Loader2 } from 'lucide-react';
+import { CheckCircle, Calendar, CreditCard, Megaphone, Users, Package, Star, Menu, X, Phone, Mail, BarChart3, Loader2, Instagram, Facebook, Youtube, Linkedin, MessageCircle } from 'lucide-react';
 import icon from '../assets/images/bb_icon.png'
 import marketingPage from '../assets/images/MarketingPage.png';
 import { salesQueriesApi } from '../apis/salesQueriesApi';
@@ -121,13 +121,13 @@ function LandingPage() {
       detailedDescription: {
         overview: "Transform your appointment scheduling with our intelligent booking system that adapts to your business needs.",
         keyFeatures: [
-          "Automated appointment reminders via SMS and email",
-          "Real-time calendar synchronization across all devices",
-          "Customizable booking forms with service-specific questions",
-          "Buffer time management between appointments",
-          "Recurring appointment support for regular clients",
+          "Appointment Scheduling",
+          "Availability management with custom working hours",
+          "Multi appointment bookings for events",
+          "Automated SMS and WhatsApp reminders",
+          "Advance payments and deposits",
           "Multi-staff scheduling with availability management",
-          "Online booking widget for your website",
+          "Mini Website for online bookings",
           "Waitlist management for popular time slots"
         ],
         benefits: [
@@ -146,16 +146,15 @@ function LandingPage() {
         overview: "Streamline your financial operations with comprehensive billing and invoicing tools designed for modern businesses.",
         keyFeatures: [
           "Customizable invoice templates with your branding",
-          "Automated recurring billing for subscription services",
-          "Multiple payment gateway integrations (Stripe, PayPal, Square)",
+          "Share bills over WhatsApp and SMS",
           "Late payment reminders and follow-up automation",
           "Tax calculation and compliance support",
           "Detailed payment analytics and reporting",
-          "Client payment portal for easy online payments",
-          "Expense tracking and categorization"
+          "Expense tracking and categorization",
         ],
         benefits: [
-          "Get paid 65% faster with automated payment reminders",
+            "Reduce cost with WhatsApp and SMS bill sharing",
+            "Easily manage Staff revenue sharing with automated calculations",
           "Reduce accounting errors with automated calculations",
           "Improve cash flow with real-time payment tracking",
           "Save 10+ hours monthly on invoice management"
@@ -165,17 +164,16 @@ function LandingPage() {
     {
       icon: Megaphone,
       title: "Marketing Tools",
-      description: "Email campaigns, SMS marketing, and customer engagement analytics",
+      description: "WhatsApp campaigns, SMS marketing, and customer engagement analytics",
       detailedDescription: {
         overview: "Grow your business with powerful marketing automation tools that help you reach the right customers at the right time.",
         keyFeatures: [
-          "Drag-and-drop email campaign builder",
-          "SMS marketing with automation triggers",
+            "Customizable templates for marketing",
+          "WhatsApp marketing with reports",
           "Customer segmentation based on behavior and preferences",
           "A/B testing for campaigns and subject lines",
           "Social media scheduling and management",
-          "Lead scoring and nurturing workflows",
-          "Review request automation",
+          "Automated Notifications and follow-ups",
           "Loyalty program management"
         ],
         benefits: [
@@ -188,7 +186,7 @@ function LandingPage() {
     },
     {
       icon: Users,
-      title: "HRMS",
+      title: "Staff Management",
       description: "Complete HR management with payroll, attendance, and employee records",
       detailedDescription: {
         overview: "Manage your entire workforce efficiently with our comprehensive Human Resource Management System.",
@@ -200,7 +198,7 @@ function LandingPage() {
           "Leave management with approval workflows",
           "Employee self-service portal",
           "Compliance tracking and reporting",
-          "Training and certification management"
+          "Revenue sharing and commission management"
         ],
         benefits: [
           "Reduce HR administrative tasks by 70%",
@@ -217,10 +215,9 @@ function LandingPage() {
       detailedDescription: {
         overview: "Take control of your inventory with intelligent tracking and management tools that prevent stockouts and reduce waste.",
         keyFeatures: [
-          "Real-time inventory tracking across multiple locations",
+          "Real-time inventory tracking",
           "Automated low-stock alerts and reorder points",
-          "Barcode scanning for quick inventory updates",
-          "Supplier management and purchase order automation",
+          "Supplier management",
           "Inventory valuation with FIFO/LIFO methods",
           "Product lifecycle tracking and analytics",
           "Integration with sales and billing systems",
@@ -267,12 +264,12 @@ function LandingPage() {
       period: "per year",
       description: "Perfect for small businesses getting started",
       features: [
-        "Up to 500 appointments/month",
+        "Up to 1000 appointments/month",
         "Billing & invoicing",
         "Email support",
         "5 Staff accounts",
-        "500 sms per month",
-        "500 whatsapp messages per month",
+        "250 sms per month",
+        "250 whatsapp messages per month",
         "Inventory tracking"
       ],
       popular: false
@@ -288,8 +285,8 @@ function LandingPage() {
         "Billing & invoicing",
         "Email support",
         "10 Staff accounts",
-        "2000 sms per month",
-        "2000 whatsapp messages per month",
+        "500 sms per month",
+        "500 whatsapp messages per month",
         "Inventory tracking",
         "Advanced reporting & analytics"
       ],
@@ -306,8 +303,8 @@ function LandingPage() {
         "Billing & invoicing",
         "Email support",
         "20 Staff accounts",
-        "5000 sms per month",
-        "5000 whatsapp messages per month",
+        "1000 sms per month",
+        "1000 whatsapp messages per month",
         "Inventory tracking",
         "Advanced reporting & analytics",
         "Dedicated 24X7 support"
@@ -326,9 +323,8 @@ function LandingPage() {
       avatar: "SJ"
     },
     {
-      name: "Urmila Devi",
+      name: "Urmila",
       role: "Salon Owner",
-      company: "Chen's Bistro",
       rating: 5,
       comment: "One of the best software it has many features which helps us to do our work easily… Also the team is very helpful… Thanks a lot for guiding us.",
       avatar: "UD"
@@ -475,6 +471,31 @@ function LandingPage() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Social media link handlers
+  const handleWhatsApp = () => {
+    const phoneNumber = '919608163637';
+    const message = 'Hi! I am interested in BillBookPlus. Can you please provide more information?';
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleInstagram = () => {
+    window.open('https://www.instagram.com/billbookplus/', '_blank');
+  };
+
+  const handleFacebook = () => {
+    window.open('https://www.facebook.com/billbookplus', '_blank');
+  };
+
+  const handleYoutube = () => {
+    window.open('https://www.youtube.com/@billbookplus', '_blank');
+  };
+
+  const handleLinkedIn = () => {
+    window.open('https://www.linkedin.com/company/billbookplusofficial/posts/?feedView=all', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -524,10 +545,10 @@ function LandingPage() {
       {/* Hero Section */}
       <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className='flex flex-row justify-center'>
+                <div className='flex flex-row justify-center items-center'>
                   <span className='w-24 h-24'><img src={icon} /></span>
                   <h1 className=" pl-8 text-4xl lg:text-6xl font-bold leading-tight text-teal-700" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</h1>
                 </div>
@@ -556,7 +577,6 @@ function LandingPage() {
               </div>
             </div>
 
-            {isDesktop && (
               <div className="relative">
                 <img
                   src={marketingPage}
@@ -564,7 +584,6 @@ function LandingPage() {
                   className="rounded-lg shadow-2xl w-full"
                 />
               </div>
-            )}
           </div>
         </div>
       </section>
@@ -602,14 +621,14 @@ function LandingPage() {
             <div className="lg:col-span-4">
               <Card className="relative">
                 <CardHeader className="pb-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="h-16 w-16 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="flex items-stretch space-x-4">
+                    <div className="h-auto w-16 rounded-lg flex items-center justify-center flex-shrink-0">
                       {(() => {
                         const FeatureIcon = features[selectedFeature]?.icon;
                         return FeatureIcon ? <FeatureIcon className="h-8 w-8 text-teal-600" /> : null;
                       })()}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <CardTitle className="text-3xl mb-2">{features[selectedFeature]?.title}</CardTitle>
                       <CardDescription className="text-lg">
                         {features[selectedFeature]?.detailedDescription?.overview}
@@ -755,6 +774,57 @@ function LandingPage() {
             <div className="flex sm:flex-col md:flex-row gap-4 justify-center">
               <Button size="lg" onClick={handleFreeTrial}>Start Free Trial</Button>
               <Button variant="outline" size="lg" onClick={handleContactSales}>Contact Sales</Button>
+            </div>
+
+            {/* Social Media Icons */}
+            <div className="pt-8">
+              <p className="text-lg text-gray-600 mb-6">Connect with us on social media</p>
+              <div className="flex justify-center items-center space-x-6">
+                {/* WhatsApp */}
+                <button
+                  onClick={handleWhatsApp}
+                  className="w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-lg hover:shadow-xl"
+                  aria-label="Contact us on WhatsApp"
+                >
+                  <MessageCircle className="h-6 w-6 text-white" />
+                </button>
+
+                {/* Instagram */}
+                <button
+                  onClick={handleInstagram}
+                  className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
+                  aria-label="Follow us on Instagram"
+                >
+                  <Instagram className="h-6 w-6 text-white" />
+                </button>
+
+                {/* Facebook */}
+                <button
+                  onClick={handleFacebook}
+                  className="w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-lg hover:shadow-xl"
+                  aria-label="Follow us on Facebook"
+                >
+                  <Facebook className="h-6 w-6 text-white" />
+                </button>
+
+                {/* YouTube */}
+                <button
+                  onClick={handleYoutube}
+                  className="w-12 h-12 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors shadow-lg hover:shadow-xl"
+                  aria-label="Subscribe to our YouTube channel"
+                >
+                  <Youtube className="h-6 w-6 text-white" />
+                </button>
+
+                {/* LinkedIn */}
+                <button
+                  onClick={handleLinkedIn}
+                  className="w-12 h-12 bg-blue-700 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors shadow-lg hover:shadow-xl"
+                  aria-label="Connect with us on LinkedIn"
+                >
+                  <Linkedin className="h-6 w-6 text-white" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -922,21 +992,67 @@ function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-100 py-12 border-t">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex sm:flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-2">
-              <div className="h-6 w-6 flex items-center justify-center">
-                <img src={icon} className="w-full h-full object-contain" />
+          {isDesktop ? (
+            // Desktop Layout - Single Row
+            <div className="flex justify-between items-center">
+              {/* Logo and Brand Name */}
+              <div className="flex items-center space-x-2">
+                <div className="h-6 w-6 flex items-center justify-center">
+                  <img src={icon} className="w-full h-full object-contain" />
+                </div>
+                <span className="font-semibold" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</span>
               </div>
-              <span className="font-semibold" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</span>
-            </div>
-                <p className="flex gap-2">
-                    <Mail className="h-6 w-6 text-teal-600" /> support@billbookplus.com
-                    <Phone className="h-6 w-6 text-teal-600" /> +919608163637
+
+              {/* Contact Information */}
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-5 w-5 text-teal-600" />
+                  <span className="text-sm text-gray-600">support@billbookplus.com</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-5 w-5 text-teal-600" />
+                  <span className="text-sm text-gray-600">+919608163637</span>
+                </div>
+              </div>
+
+              {/* Copyright */}
+              <div>
+                <p className="text-sm text-gray-600">
+                  © 2024 BillBookPlus. All rights reserved.
                 </p>
-            <p className="text-sm text-gray-600">
-              © 2024 BillBookPlus. All rights reserved.
-            </p>
-          </div>
+              </div>
+            </div>
+          ) : (
+            // Mobile Layout - Stacked Rows
+            <div className="flex flex-col space-y-4 text-center">
+              {/* Logo and Brand Name */}
+              <div className="flex items-center justify-center space-x-2">
+                <div className="h-6 w-6 flex items-center justify-center">
+                  <img src={icon} className="w-full h-full object-contain" />
+                </div>
+                <span className="font-semibold" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</span>
+              </div>
+
+              {/* Contact Information */}
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center justify-center space-x-2">
+                  <Mail className="h-5 w-5 text-teal-600" />
+                  <span className="text-sm text-gray-600">support@billbookplus.com</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <Phone className="h-5 w-5 text-teal-600" />
+                  <span className="text-sm text-gray-600">+919608163637</span>
+                </div>
+              </div>
+
+              {/* Copyright */}
+              <div>
+                <p className="text-sm text-gray-600">
+                  © 2024 BillBookPlus. All rights reserved.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </footer>
     </div>
