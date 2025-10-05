@@ -5,6 +5,22 @@ import icon from '../assets/images/bb_icon.png'
 import marketingPage from '../assets/images/MarketingPage.png';
 import { salesQueriesApi } from '../apis/salesQueriesApi';
 
+// SEO Component for dynamic meta updates
+const SEOHead = () => {
+  useEffect(() => {
+    // Update page title dynamically if needed
+    document.title = "BillBookPlus - All-in-One Business Management Software for Salons, Spas & Service Centers";
+
+    // Add any additional meta tags dynamically if needed
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Streamline your salon, spa, or service center with BillBookPlus. Complete appointment booking, billing, inventory, staff management, and marketing automation in one powerful platform. Start your 14-day free trial today!');
+    }
+  }, []);
+
+  return null;
+};
+
 // UI Components
 const Button = ({ children, className = '', variant = 'primary', size = 'md', onClick, ...props }) => {
   const baseClasses = 'font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -498,6 +514,7 @@ function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b">
         <div className="container mx-auto px-4 lg:px-8">
@@ -549,14 +566,21 @@ function LandingPage() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className='flex flex-row justify-center items-center'>
-                  <span className='w-24 h-24'><img src={icon} /></span>
+                  <span className='w-24 h-24'>
+                    <img
+                      src={icon}
+                      alt="BillBookPlus Logo - Business Management Software for Salons and Spas"
+                      title="BillBookPlus - All-in-One Business Management Solution"
+                      loading="eager"
+                    />
+                  </span>
                   <h1 className=" pl-8 text-4xl lg:text-6xl font-bold leading-tight text-teal-700" style={{fontFamily: 'Crete Round, serif'}}>BillBookPlus</h1>
                 </div>
                 <h2 className=" text-4xl lg:text-6xl font-bold leading-tight">
-                  All-in-One Business Management Solution
+                  All-in-One Business Management Solution for Salons, Spas & Service Centers
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Streamline appointments, billing, marketing, HR, and inventory management in one powerful platform. Built for service oriented businesses specializing in Salons, Spas and Service Centers.
+                  Streamline appointments, billing, marketing, HR, and inventory management in one powerful platform. Built for service oriented businesses specializing in Salons, Spas and Service Centers. Trusted by thousands of businesses across India.
                 </p>
               </div>
               
@@ -580,8 +604,10 @@ function LandingPage() {
               <div className="relative">
                 <img
                   src={marketingPage}
-                  alt="BillBookPlus Dashboard"
+                  alt="BillBookPlus Dashboard Screenshot - Salon management software showing appointment booking, billing, and business analytics interface for beauty salons and spas"
+                  title="BillBookPlus Software Dashboard - Complete Business Management Solution"
                   className="rounded-lg shadow-2xl w-full"
+                  loading="eager"
                 />
               </div>
           </div>
