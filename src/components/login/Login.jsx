@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "./useAuth";
 import { useStore } from "./StoreContext";
@@ -37,6 +37,9 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   
+  // Timer reference for error clearing
+  const errorTimerRef = useRef(null);
+
   // Check screen size on mount and resize
   useEffect(() => {
     const checkScreenSize = () => {
@@ -49,8 +52,27 @@ const Login = () => {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // This useEffect is no longer needed since we're navigating directly to home
-  // and StoreContext will handle loading stores when needed
+  // Auto-clear error messages after 5 seconds
+  useEffect(() => {
+    if (errorMessage) {
+      // Clear any existing timer
+      if (errorTimerRef.current) {
+        clearTimeout(errorTimerRef.current);
+      }
+
+      // Set new timer to clear error after 5 seconds
+      errorTimerRef.current = setTimeout(() => {
+        setErrorMessage("");
+      }, 5000);
+    }
+
+    // Cleanup timer on component unmount or when errorMessage changes
+    return () => {
+      if (errorTimerRef.current) {
+        clearTimeout(errorTimerRef.current);
+      }
+    };
+  }, [errorMessage]);
 
   // --- HELPER FUNCTIONS ---
   const handleApiError = (error) => {
@@ -62,7 +84,18 @@ const Login = () => {
 
   const resetFormState = () => {
     setErrorMessage("");
+    // Clear timer when manually resetting
+    if (errorTimerRef.current) {
+      clearTimeout(errorTimerRef.current);
+    }
     // We don't clear phoneNumber here as we need it for the OTP verification flow
+  };
+
+  // Clear error messages when user interacts with form
+  const clearError = () => {
+    if (errorMessage) {
+      setErrorMessage("");
+    }
   };
 
   // --- API HANDLERS ---
@@ -106,9 +139,9 @@ const Login = () => {
     try {
       const response = await authApi.register(userData);
       
-      setUserId(response.userId);
-      setPhoneNumber(userData.phoneNumber); // Store the phone number
-      setOtpMessage(`OTP sent to ${userData.phoneNumber}.`);
+      setUserId(response.data.userId);
+      setPhoneNumber(userData.data.phoneNumber); // Store the phone number
+      setOtpMessage(`OTP sent to ${userData.data.phoneNumber}.`);
       setStep(4); // Move to OTP verification
     } catch (error) {
       handleApiError(error);
@@ -129,8 +162,8 @@ const Login = () => {
         // Store the phone number for OTP verification
         setPhoneNumber(phoneData.phone);
         // Set userId if provided, otherwise we'll handle OTP verification without it initially
-        if (response.userId) {
-          setUserId(response.userId);
+        if (response.data.userId) {
+          setUserId(response.data.userId);
         }
         setOtpMessage(`Password reset OTP sent to ${phoneData.phone}.`);
         setStep(7); // Move to reset OTP verification

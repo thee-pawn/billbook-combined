@@ -988,7 +988,7 @@ function LandingPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-left">Sales Phone</p>
-                  <p className="text-sm text-gray-600 text-left">+9919608163637</p>
+                  <p className="text-sm text-gray-600 text-left">+919608163637</p>
                 </div>
               </div>
             </div>
