@@ -4,6 +4,7 @@ import { useAuth } from "./useAuth";
 import { useStore } from "./StoreContext";
 import { authApi } from "../../apis";
 import features from "../../data/featuresData";
+import icon from '../../assets/images/bb_icon.png';
 
 // Import components
 import { 
@@ -249,13 +250,28 @@ const Login = () => {
 
   // --- MAIN RENDER FUNCTION ---
   return (
-    <div className={`min-h-screen bg-gray-100 font-sans ${isDesktop ? 'grid md:grid-cols-2' : 'flex'}`}>
+    <div className={`h-screen bg-gray-100 font-sans ${isDesktop ? 'grid md:grid-cols-2' : 'flex flex-col'} overflow-hidden`}>
       {/* Left Panel - Feature Carousel - Only show on desktop */}
       {isDesktop && <FeatureCarousel features={features} />}
 
       {/* Right Panel - Auth Forms */}
-      <div className="bg-teal-500 flex justify-center items-center py-8 px-4 relative">
-        <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md">
+      <div className={`bg-teal-500 flex justify-center items-center ${isDesktop ? 'py-4 px-4' : 'py-2'} relative flex-1 overflow-y-auto`}>
+
+        <div className={`bg-white ${isDesktop ? 'p-4 sm:p-6 rounded-lg shadow-xl' : 'p-4 w-full'} w-full max-w-md my-auto`}>
+             {!isDesktop &&
+                          <div className="mb-4 text-center">
+                              <div className="flex items-center justify-center space-x-3">
+                                  <img
+                                      src={icon}
+                                      alt="BillBookPlus Logo"
+                                      className="h-10 w-10"
+                                  />
+                                  <h1 className="text-2xl font-bold text-teal-700" style={{fontFamily: 'Crete Round, serif'}}>
+                                      BillBookPlus
+                                  </h1>
+                              </div>
+                          </div>
+                      }
           {step === 1 && (
             <LoginForm 
               onSubmit={handleLoginSubmit}
