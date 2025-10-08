@@ -249,6 +249,12 @@ const Services = () => {
       accessor: 'gender',
       filterable: true,
       filterType: 'custom',
+      cellRenderer: (row) => {
+        if (row.gender.toLowerCase() === 'male') return 'Male'
+        else if (row.gender.toLowerCase() === 'female') return 'Female'
+        else return 'Unisex'
+      },
+        
       filterRenderer: (value, onChange) => {
         const options = ['Male', 'Female'];
         const selectedOptions = value || [];
@@ -317,6 +323,10 @@ const Services = () => {
       accessor: 'status',
       filterable: true,
       filterType: 'custom',
+      cellRenderer: (row) => {
+        if (row.status.toLowerCase() === 'active') return 'Active'
+        else if (row.status.toLowerCase() === 'inactive') return 'Inactive'
+      },
       filterRenderer: (value, onChange) => {
         const options = ['Active', 'Inactive'];
         const selectedOptions = value || [];

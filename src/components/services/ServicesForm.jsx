@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, XCircle, AlertTriangle, ChevronDown, Edit3, Trash2 } from 'lucide-react'; // Using lucide-react for icons
 import { InputField, SelectField, TextAreaField, Button, FormSection } from '@components/common/FormElements';
+import { productsApi } from '../../apis/APIs';
+import { useStore } from '../login/StoreContext';
 
 // Mock data - replace with actual data fetching or props
 const MOCK_CATEGORIES = ['Haircut', 'Coloring', 'Facial', 'Manicure', 'Pedicure', 'Massage', 'Styling'];
-const MOCK_PRODUCTS = ['Shampoo A', 'Conditioner B', 'Hair Oil C', 'Face Mask D', 'Lotion E', 'Serum F'];
 const MOCK_PRODUCT_UNITS = ['ml', 'g', 'oz', 'pcs', 'drops'];
 
 const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = false }) => {
+  const { currentStore } = useStore();
   const [serviceName, setServiceName] = useState(initialServiceData?.name || '');
   const [category, setCategory] = useState(initialServiceData?.category || '');
   const [description, setDescription] = useState(initialServiceData?.description || '');
   const [gender, setGender] = useState(initialServiceData?.gender || 'unisex');
   const [price, setPrice] = useState(initialServiceData?.price || '');
   const [duration, setDuration] = useState(initialServiceData?.duration || '');
-  const [taxPercent, setTaxPercent] = useState(initialServiceData?.taxPercnt || '18');
-  
+  const [taxPercent, setTaxPercent] = useState(initialServiceData?.taxPercnt || '0');
+
   const [setReminder, setSetReminder] = useState(initialServiceData?.reminder ? true : false);
   const [reminderDays, setReminderDays] = useState(initialServiceData?.reminder || '30');
 
@@ -29,7 +31,39 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
     })) : []);
   const [showProductUsage, setShowProductUsage] = useState(products.length > 0 || false);
 
+  // State for fetched products from backend
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+
   const [errors, setErrors] = useState({});
+
+  // Fetch available products from the backend when the component mounts
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!currentStore?.id) return; // Don't fetch if no store is selected
+
+      setProductsLoading(true);
+      try {
+        const response = await productsApi.getProducts(currentStore.id);
+        // Handle the specific API response structure: response.data.products
+        const products = Array.isArray(response?.data?.products)
+          ? response.data.products
+          : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response)
+          ? response
+          : [];
+        setAvailableProducts(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setAvailableProducts([]); // Set empty array on error
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [currentStore?.id]);
 
   // Sync form fields when initialServiceData changes (view/edit/open another item)
   useEffect(() => {
@@ -55,7 +89,7 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
           ? String(initialServiceData.taxPercent)
           : initialServiceData.taxPercnt !== undefined && initialServiceData.taxPercnt !== null
           ? String(initialServiceData.taxPercnt)
-          : '18'
+          : '0'
       );
 
       const reminderVal = initialServiceData.reminder ?? null;
@@ -68,8 +102,8 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
       const normalizedProducts = Array.isArray(rawProducts)
         ? rawProducts.map((p) => ({
             id: Date.now().toString() + Math.random(),
-            productId: p.productId ?? p.id ?? p.productName ?? '',
-            productName: p.productName ?? p.productId ?? '',
+            productId: p.productId ?? p.id ?? '',
+            productName: p.productName ?? '', // Don't fallback to productId, let it resolve from availableProducts
             volume: p.qty ?? p.volume ?? '',
             unit: p.unit ?? 'ml',
           }))
@@ -84,7 +118,7 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
       setGender('unisex');
       setPrice('');
       setDuration('');
-      setTaxPercent('18');
+      setTaxPercent('0');
       setSetReminder(false);
       setReminderDays('30');
       setProducts([]);
@@ -93,10 +127,47 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
     }
   }, [initialServiceData]);
 
+  // Resolve product names when availableProducts are loaded
+  useEffect(() => {
+    if (availableProducts.length > 0 && products.length > 0) {
+      setProducts(prevProducts => {
+        const updatedProducts = prevProducts.map(product => {
+          if (product.productId && !product.productName) {
+            // Find the product in availableProducts and set the name
+            const foundProduct = availableProducts.find(ap => ap.id === product.productId);
+            if (foundProduct) {
+              return {
+                ...product,
+                productName: foundProduct.name
+              };
+            }
+          }
+          return product;
+        });
+
+        // Only update if there are actual changes
+        const hasChanges = updatedProducts.some((product, index) =>
+          product.productName !== prevProducts[index]?.productName
+        );
+
+        if (hasChanges) {
+          return updatedProducts;
+        }
+        return prevProducts;
+      });
+    }
+  }, [availableProducts]); // Remove products from dependencies to avoid circular updates
+
   const handleAddProduct = () => {
     setProducts([
       ...products,
-      { id: Date.now().toString(), productName: '', volume: '', unit: MOCK_PRODUCT_UNITS[0] },
+      {
+        id: Date.now().toString(),
+        productId: '', // Initialize with empty productId (UUID will be set when product is selected)
+        productName: '',
+        volume: '',
+        unit: MOCK_PRODUCT_UNITS[0]
+      },
     ]);
     setShowProductUsage(true); // Show section if a product is added
   };
@@ -129,12 +200,14 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
       newErrors.duration = 'Valid duration in minutes is required.';
     }
     
-    if (!taxPercent.trim() || isNaN(parseFloat(taxPercent)) || parseFloat(taxPercent) < 0) {
-      newErrors.taxPercent = 'Valid tax percentage is required.';
+    // Tax is now optional - only validate if a value is provided
+    if (taxPercent.trim() && (isNaN(parseFloat(taxPercent)) || parseFloat(taxPercent) < 0)) {
+      newErrors.taxPercent = 'Tax percentage must be a valid number (0 or greater).';
     }
 
-    if (setReminder && (!reminderDays.trim() || isNaN(parseInt(reminderDays)) || parseInt(reminderDays) <= 0)) {
-      newErrors.reminderDays = 'Valid reminder days are required.';
+    // Validate reminder days: must be >= 1 when reminder is enabled
+    if (setReminder && (!reminderDays.trim() || isNaN(parseInt(reminderDays)) || parseInt(reminderDays) < 1)) {
+      newErrors.reminderDays = 'Reminder days must be 1 or greater.';
     }
     
     // Validate each product if product usage is shown
@@ -167,7 +240,7 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
         price: parseFloat(price),
         duration: parseInt(duration),
         status: "active", // Default to active
-        tax_prcnt: parseFloat(taxPercent),
+        tax_prcnt: taxPercent.trim() ? parseFloat(taxPercent) : 0, // Default to 0 if empty
         productUsage: showProductUsage ? products.filter(p => p.productName && p.volume).map(p => ({
           productId: p.productId || p.productName, // This might need to be mapped to actual product IDs
           qty: parseFloat(p.volume),
@@ -303,15 +376,14 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
           />
           
           <InputField
-            label="Tax %"
+            label="Tax % (Optional)"
             name="taxPercent"
             value={taxPercent}
             onChange={(e) => setTaxPercent(e.target.value)}
             type="number"
             step="0.1"
-            placeholder="e.g., 18"
+            placeholder="e.g., 18 (default: 0)"
             disabled={isViewMode}
-            required
           />
         </div>
         
@@ -341,13 +413,42 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
               <div className="col-span-5">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Select Product</label>
                 <select
-                  value={product.productName}
-                  onChange={(e) => handleProductChange(index, 'productName', e.target.value)}
-                  disabled={isViewMode}
+                  value={product.productId || ''}
+                  onChange={(e) => {
+                    const selectedProduct = availableProducts.find(p => p.id === e.target.value);
+                    if (selectedProduct) {
+                      // Update both productId and productName in a single call to avoid race conditions
+                      const updatedProducts = products.map((p, i) =>
+                        i === index ? {
+                          ...p,
+                          productId: selectedProduct.id,
+                          productName: selectedProduct.name
+                        } : p
+                      );
+                      setProducts(updatedProducts);
+                    } else {
+                      // Clear both values
+                      const updatedProducts = products.map((p, i) =>
+                        i === index ? {
+                          ...p,
+                          productId: '',
+                          productName: ''
+                        } : p
+                      );
+                      setProducts(updatedProducts);
+                    }
+                  }}
+                  disabled={isViewMode || productsLoading}
                   className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm ${errors[`productName_${index}`] ? 'border-red-500' : 'border-gray-300'} ${isViewMode ? 'bg-gray-100' : ''}`}
                 >
-                  <option value="">Select product...</option>
-                  {MOCK_PRODUCTS.map(p => <option key={p} value={p}>{p}</option>)}
+                  <option value="">
+                    {productsLoading ? 'Loading products...' : 'Select product...'}
+                  </option>
+                  {availableProducts.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} {p.company && `(${p.company})`}
+                    </option>
+                  ))}
                 </select>
                 {errors[`productName_${index}`] && (
                   <p className="mt-1 text-xs text-red-500">{errors[`productName_${index}`]}</p>
