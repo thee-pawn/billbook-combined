@@ -103,7 +103,7 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
       await enumsApi.updateServiceCategories(currentStore.id, updatedCategories);
 
       // Update local state
-      setCategories(updatedCategories);
+      setCategories(updatedCategories );
       setCategory(newCategory); // Set the newly added category as selected
     } catch (error) {
       console.error('Error adding category:', error);
