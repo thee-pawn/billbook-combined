@@ -1835,3 +1835,74 @@ export const enquiriesApi = {
         }
     }
 };
+
+/**
+ * Enums API functions
+ */
+export const enumsApi = {
+  /**
+   * Get service categories for a store
+   * @param {string} storeId - The ID of the store
+   * @returns {Promise} - A promise that resolves to the categories
+   */
+  getServiceCategories: async (storeId) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/serviceCategory`;
+      const response = await fetchWithAuth(url, 'GET');
+      return response;
+    } catch (error) {
+      console.error('Error fetching service categories:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update service categories for a store
+   * @param {string} storeId - The ID of the store
+   * @param {Array} values - Array of category values
+   * @returns {Promise} - A promise that resolves to the updated categories
+   */
+  updateServiceCategories: async (storeId, values) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/serviceCategory`;
+      const response = await fetchWithAuth(url, 'PATCH', { values });
+      return response;
+    } catch (error) {
+      console.error('Error updating service categories:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get product categories for a store
+   * @param {string} storeId - The ID of the store
+   * @returns {Promise} - A promise that resolves to the categories
+   */
+  getProductCategories: async (storeId) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/productCategory`;
+      const response = await fetchWithAuth(url, 'GET');
+      return response;
+    } catch (error) {
+      console.error('Error fetching product categories:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update product categories for a store
+   * @param {string} storeId - The ID of the store
+   * @param {Array} values - Array of category values
+   * @returns {Promise} - A promise that resolves to the updated categories
+   */
+  updateProductCategories: async (storeId, values) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/productCategory`;
+      const response = await fetchWithAuth(url, 'PATCH', { values });
+      return response;
+    } catch (error) {
+      console.error('Error updating product categories:', error);
+      throw error;
+    }
+  }
+};

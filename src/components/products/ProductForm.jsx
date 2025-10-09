@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, CalendarDays, Bell } from 'lucide-react';
 import { InputField, SelectField, TextAreaField, Button, FormSection } from '../common/FormElements';
-import { productsApi } from '../../apis/APIs';
+import { productsApi, enumsApi } from '../../apis/APIs';
 import { useStore } from '../login/StoreContext';
+import CategorySelector from './CategorySelector';
 
 // Mock data - replace with actual data fetching or props
 const MOCK_PRODUCT_CATEGORIES = ['Shampoo', 'Conditioner', 'Hair Oil', 'Styling Gel', 'Face Wash', 'Moisturizer', 'Serum'];
@@ -94,10 +95,56 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // State for product categories
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
   // Active store id from context
   const STORE_ID = currentStore?.id;
 
   const MOCK_VOLUME_UNITS = ['ml', 'g', 'L', 'kg', 'pcs', 'oz'];
+
+  // Fetch product categories from the backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!currentStore?.id) return; // Don't fetch if no store is selected
+
+      setCategoriesLoading(true);
+      try {
+        const response = await enumsApi.getProductCategories(currentStore.id);
+        // Handle the API response structure: response.data.enum.values
+        const categoryList = response?.data?.enum?.values || [];
+        setCategories(categoryList);
+      } catch (error) {
+        console.error('Error fetching product categories:', error);
+        setCategories([]); // Set empty array on error
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [currentStore?.id]);
+
+  // Function to add a new product category
+  const handleAddCategory = async (newCategory) => {
+    if (!currentStore?.id) return;
+
+    try {
+      // Add the new category to the existing list
+      const updatedCategories = [...categories, newCategory];
+
+      // Update the categories via API
+      await enumsApi.updateProductCategories(currentStore.id, updatedCategories);
+
+      // Update local state
+      setCategories(updatedCategories);
+      setCategory(newCategory); // Set the newly added category as selected
+    } catch (error) {
+      console.error('Error adding product category:', error);
+      // Optionally show an error message to the user
+    }
+  };
 
   // Update form fields when initialProductData changes (for editing)
   useEffect(() => {
@@ -175,13 +222,15 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
     if (mfgDate && expDate && new Date(expDate) < new Date(mfgDate)) {
       newErrors.expDate = 'Expiry date cannot be before manufacturing date.';
     }
-    if (!lowQtyNotification.trim() || isNaN(parseInt(lowQtyNotification)) || parseInt(lowQtyNotification) < 0) {
-      newErrors.lowQtyNotification = 'Valid low quantity threshold is required.';
+    // Make lowQtyNotification optional - only validate if provided
+    if (lowQtyNotification.trim() && (isNaN(parseInt(lowQtyNotification)) || parseInt(lowQtyNotification) < 0)) {
+      newErrors.lowQtyNotification = 'Valid low quantity threshold is required when provided.';
     }
-    if (!expNotificationDays.trim() || isNaN(parseInt(expNotificationDays)) || parseInt(expNotificationDays) < 0) {
-      newErrors.expNotificationDays = 'Valid expiry notification days are required.';
+    // Make expNotificationDays optional - only validate if provided
+    if (expNotificationDays.trim() && (isNaN(parseInt(expNotificationDays)) || parseInt(expNotificationDays) < 0)) {
+      newErrors.expNotificationDays = 'Valid expiry notification days are required when provided.';
     }
-    if (!hsnSac.trim()) newErrors.hsnSac = 'HSN/SAC code is required.';
+    // HSN/SAC code is now optional - no validation needed
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -212,26 +261,28 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
           quantity: parseInt(quantity),
           tax: tax ? parseFloat(tax) : null,
           mfgDate,
-          lowQtyNotification: parseInt(lowQtyNotification),
           expDate,
-          expNotificationDays: parseInt(expNotificationDays),
-          hsnSac,
           description,
           batchNo
         };
-        
-        
-        if (initialProductData) {
-          // Update existing product
-          await productsApi.updateProduct(STORE_ID, initialProductData.id, productData);
-        } else {
-          // Create new product
-          await productsApi.createProduct(STORE_ID, productData);
+
+        // Only add optional fields if they have values
+        if (lowQtyNotification.trim()) {
+          productData.lowQtyNotification = parseInt(lowQtyNotification);
         }
-        
+
+        if (expNotificationDays.trim()) {
+          productData.expNotificationDays = parseInt(expNotificationDays);
+        }
+
+        if (hsnSac.trim()) {
+          productData.hsnSac = hsnSac;
+        }
+
         // Call the onSave callback to handle success (close modal, refresh list, etc.)
+        // The parent component will handle the actual API call
         if (onSave) {
-          onSave(productData);
+          await onSave(productData);
         }
       } catch (error) {
         console.error('Error saving product:', error);
@@ -307,18 +358,21 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
               ...MOCK_PRODUCT_TYPES.map(type => ({ value: type, label: type }))
             ]}
           />
-          <SelectField
-            label="Category"
-            name="category"
+          <CategorySelector
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required={!isViewOnly}
+            onChange={setCategory}
+            categories={categories}
+            onAddCategory={handleAddCategory}
             disabled={isViewOnly}
-            options={[
-              { value: "", label: "Select category..." },
-              ...MOCK_PRODUCT_CATEGORIES.map(cat => ({ value: cat, label: cat }))
-            ]}
+            placeholder="Select or type a category..."
+            className={errors.category ? 'border-red-500' : ''}
+            required={!isViewOnly}
           />
+          {errors.category && (
+            <div className="col-span-2">
+              <p className="mt-1 text-xs text-red-500">{errors.category}</p>
+            </div>
+          )}
         </div>
 
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
@@ -390,7 +444,6 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
             type="number" 
             placeholder="e.g., 10 units" 
             min="0"
-            required={!isViewOnly}
             disabled={isViewOnly}
           />
           <InputField 
@@ -401,7 +454,6 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
             type="number" 
             placeholder="e.g., 30 days" 
             min="0"
-            required={!isViewOnly}
             disabled={isViewOnly}
           />
         </div>
@@ -413,7 +465,6 @@ const ProductForm = ({ initialProductData, onSave, onCancel, isViewOnly = false 
             value={hsnSac} 
             onChange={(e) => setHsnSac(e.target.value)} 
             placeholder="Enter HSN or SAC code" 
-            required={!isViewOnly}
             disabled={isViewOnly}
           />
           <InputField 

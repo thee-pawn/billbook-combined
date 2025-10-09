@@ -125,7 +125,6 @@ const Services = () => {
   const handleSaveService = async (serviceData) => {
     if (!currentStore?.id) return;
     
-    
     try {
       if (selectedService) {
         // Update existing service
@@ -155,6 +154,9 @@ const Services = () => {
               service.id === selectedService.id ? updatedService : service
             )
           );
+
+          // Show success notification for update
+          showNotification(`Service "${serviceData.name}" updated successfully!`, 'success');
         }
       } else {
         // Add new service
@@ -179,13 +181,20 @@ const Services = () => {
             productUsage: response.data.service.productUsage || []
           };
           setData(prevData => [...prevData, newService]);
+
+          // Show success notification for new service
+          showNotification(`Service "${serviceData.name}" got added`, 'success');
         }
       }
       
       handleDrawerClose();
     } catch (error) {
       console.error("Error saving service:", error);
-      // Handle error appropriately - maybe show a toast notification
+      // Show error notification
+      showNotification(
+        `Failed to ${selectedService ? 'update' : 'add'} service. Please try again.`,
+        'error'
+      );
     }
   };
 
@@ -432,3 +441,4 @@ const Services = () => {
 };
 
 export default Services;
+

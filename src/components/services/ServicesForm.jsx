@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, XCircle, AlertTriangle, ChevronDown, Edit3, Trash2 } from 'lucide-react'; // Using lucide-react for icons
 import { InputField, SelectField, TextAreaField, Button, FormSection } from '@components/common/FormElements';
-import { productsApi } from '../../apis/APIs';
+import { productsApi, enumsApi } from '../../apis/APIs';
 import { useStore } from '../login/StoreContext';
+import CategorySelector from './CategorySelector';
 
 // Mock data - replace with actual data fetching or props
-const MOCK_CATEGORIES = ['Haircut', 'Coloring', 'Facial', 'Manicure', 'Pedicure', 'Massage', 'Styling'];
 const MOCK_PRODUCT_UNITS = ['ml', 'g', 'oz', 'pcs', 'drops'];
 
 const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = false }) => {
@@ -34,6 +34,10 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
   // State for fetched products from backend
   const [availableProducts, setAvailableProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
+
+  // State for service categories
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   const [errors, setErrors] = useState({});
 
@@ -64,6 +68,48 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
 
     fetchProducts();
   }, [currentStore?.id]);
+
+  // Fetch service categories from the backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!currentStore?.id) return; // Don't fetch if no store is selected
+
+      setCategoriesLoading(true);
+      try {
+        const response = await enumsApi.getServiceCategories(currentStore.id);
+        // Handle the API response structure: response.data.enum.values
+        const categoryList = response?.data?.enum?.values || [];
+        setCategories(categoryList);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]); // Set empty array on error
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [currentStore?.id]);
+
+  // Function to add a new category
+  const handleAddCategory = async (newCategory) => {
+    if (!currentStore?.id) return;
+
+    try {
+      // Add the new category to the existing list
+      const updatedCategories = [...categories, newCategory];
+
+      // Update the categories via API
+      await enumsApi.updateServiceCategories(currentStore.id, updatedCategories);
+
+      // Update local state
+      setCategories(updatedCategories);
+      setCategory(newCategory); // Set the newly added category as selected
+    } catch (error) {
+      console.error('Error adding category:', error);
+      // Optionally show an error message to the user
+    }
+  };
 
   // Sync form fields when initialServiceData changes (view/edit/open another item)
   useEffect(() => {
@@ -226,7 +272,7 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
@@ -249,11 +295,32 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
       };
       
       if (onSave) {
-        onSave(serviceData);
+        try {
+          await onSave(serviceData);
+        } catch (error) {
+          console.error('Error saving service:', error);
+          // Handle error if needed
+        }
       }
-    } else {
     }
   };
+
+  // Function to reset the form to initial state
+  const resetForm = () => {
+    setServiceName('');
+    setCategory('');
+    setDescription('');
+    setGender('unisex');
+    setPrice('');
+    setDuration('');
+    setTaxPercent('0');
+    setSetReminder(false);
+    setReminderDays('30');
+    setProducts([]);
+    setShowProductUsage(false);
+    setErrors({});
+  };
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg space-y-6">
       <FormSection>
@@ -309,17 +376,22 @@ const AddServiceForm = ({ initialServiceData, onSave, onCancel, isViewMode = fal
         </div>
 
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          <SelectField
-            label="Category"
-            name="category"
+          <CategorySelector
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            options={MOCK_CATEGORIES.map(cat => ({ value: cat, label: cat }))}
-            placeholder="Select a category..."
+            onChange={setCategory}
+            categories={categories}
+            onAddCategory={handleAddCategory}
             disabled={isViewMode}
+            placeholder="Select or type a category..."
+            className={errors.category ? 'border-red-500' : ''}
             required
           />
-          
+          {errors.category && (
+            <p className="mt-1 text-xs text-red-500 flex items-center">
+              <AlertTriangle size={14} className="mr-1"/>{errors.category}
+            </p>
+          )}
+
           <TextAreaField
             label="Description"
             name="description"
