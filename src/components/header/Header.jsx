@@ -49,24 +49,6 @@ function Header() {
   const userName = getUserDisplayName();
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: 1, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 2, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 3, message: 'Another notification without a link.' },
-    { id: 4, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 5, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 6, message: 'Another notification without a link.' },
-    { id: 7, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 8, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 9, message: 'Another notification without a link.' },
-    { id: 10, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 11, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 12, message: 'Another notification without a link.' },
-    { id: 13, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 14, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 15, message: 'Another notification without a link.' },
-    { id: 16, message: 'New appointment scheduled for today!', link: '/appointments/123' },
-    { id: 17, message: 'Payment received from customer.', link: '/payments/456' },
-    { id: 18, message: 'Another notification without a link.' },
   ]);
 
   // Store logo state (fetched from API per selected store)

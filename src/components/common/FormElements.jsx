@@ -10,7 +10,8 @@ export const InputField = ({
     required = false, 
     isReadOnly = false, 
     className = '',
-    ...props 
+    error,
+    ...props
 }) => (
     <div className={className}>
         {label && (
@@ -30,10 +31,13 @@ export const InputField = ({
             className={`w-full px-3 py-2 rounded-md text-sm ${
                 isReadOnly 
                     ? 'bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed' 
+                    : error 
+                    ? 'border-red-400 focus:ring-1 focus:ring-red-500 focus:border-red-500'
                     : 'border-gray-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500'
             } border shadow-sm`}
             {...props}
         />
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
 );
 

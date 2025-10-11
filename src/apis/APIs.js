@@ -1049,7 +1049,9 @@ export const expensesApi = {
     }
 };
 
-// Staff API
+/**
+ * Staff API
+ */
 export const staffApi = {
     /**
      * Get all staff members for a store
@@ -1088,6 +1090,7 @@ export const staffApi = {
                         status: s.status || 'active',
                         dateOfJoining: (personal.dateOfJoining || personal.date_of_joining || null),
                         dateOfBirth: personal.dateOfBirth || personal.date_of_birth || null,
+                        documentName: personal.documentName || null, // Use documentName instead of documentId
                         raw: s // keep raw for future reference
                     };
                 });
@@ -1099,48 +1102,147 @@ export const staffApi = {
             throw error;
         }
     },
+
+    /**
+     * Upload staff document file to S3
+     * @param {string} storeId - The ID of the store
+     * @param {File} file - The document file to upload
+     * @returns {Promise} - A promise that resolves to the upload response
+     */
+    uploadStaffDocument: async (storeId, file) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authentication token not found');
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Use the path format similar to expenses: storeId/staff_documents
+            const path = encodeURIComponent(`${storeId}/staff_documents`);
+            const url = `${FULL_API_URL}/upload/single?path=${path}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                    // Note: Don't set Content-Type for FormData, let the browser set it
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Upload Error Response:', { status: response.status, statusText: response.statusText, body: errorText });
+                throw new Error(`File upload failed with status ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error uploading staff document:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get staff document file from S3
+     * @param {string} documentId - The document ID/filename
+     * @returns {Promise<Blob>} - A promise that resolves to the document file blob
+     */
+    getStaffDocument: async (documentId) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authentication token not found');
+            }
+
+            const url = `${FULL_API_URL}/upload/file/${documentId}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch document: ${response.statusText}`);
+            }
+
+            return await response.blob();
+        } catch (error) {
+            console.error('Error fetching staff document:', error);
+            throw error;
+        }
+    },
+
     /**
      * Create staff member
      */
-    createStaff: async (storeId, staffPayload) => {
+    createStaff: async (storeId, staffPayload, documentFile = null) => {
         try {
+            let documentName = null;
+
+            // If document file is provided, upload it first
+            if (documentFile) {
+                const uploadResponse = await staffApi.uploadStaffDocument(storeId, documentFile);
+                if (uploadResponse.success) {
+                    documentName = uploadResponse.data.filename;
+                }
+            }
+
+            // Add document name to payload
+            const finalPayload = {
+                ...staffPayload,
+                personal: {
+                    ...staffPayload.personal,
+                    documentName: documentName
+                }
+            };
+
             const url = `${FULL_API_URL}/staff/${storeId}`;
-            const response = await fetchWithAuth(url, 'POST', staffPayload);
+            const response = await fetchWithAuth(url, 'POST', finalPayload);
+
             return response;
         } catch (error) {
             console.error('Error creating staff:', error);
             throw error;
         }
     },
+
     /**
      * Update staff member
      */
-    updateStaff: async (storeId, staffId, staffPayload) => {
+    updateStaff: async (storeId, staffId, staffPayload, documentFile = null) => {
         try {
+            let documentName = staffPayload.personal?.documentName || null;
+
+            // If there's a new document file, upload it first
+            if (documentFile) {
+                const uploadResponse = await staffApi.uploadStaffDocument(storeId, documentFile);
+                if (uploadResponse.success) {
+                    documentName = uploadResponse.data.filename;
+                }
+            }
+
+            // Update the payload with the document name
+            const updatedPayload = {
+                ...staffPayload,
+                personal: {
+                    ...staffPayload.personal,
+                    documentName: documentName
+                }
+            };
+
             const url = `${FULL_API_URL}/staff/${storeId}/${staffId}`;
-            const response = await fetchWithAuth(url, 'PUT', staffPayload);
+            const response = await fetchWithAuth(url, 'PUT', updatedPayload);
             return response;
         } catch (error) {
             console.error('Error updating staff:', error);
             throw error;
         }
     },
-    /**
-     * Get staff list capable of a specific service
-     */
-    getByService: async (storeId, serviceId) => {
-        try {
-            const url = `${FULL_API_URL}/staff/${storeId}/by-service/${serviceId}`;
-            const response = await fetchWithAuth(url, 'GET');
-            if (Array.isArray(response?.staff)) {
-                return { success: true, data: response.staff.map(s => ({ id: s.staffId || s.id, name: s.name })) };
-            }
-            return { success: false, data: [] };
-        } catch (error) {
-            console.error('Error fetching staff by service:', error);
-            throw error;
-        }
-    }
 };
 
 // Customers API
@@ -1902,6 +2004,39 @@ export const enumsApi = {
       return response;
     } catch (error) {
       console.error('Error updating product categories:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get roles for a store
+   * @param {string} storeId - The ID of the store
+   * @returns {Promise} - A promise that resolves to the roles
+   */
+  getRoles: async (storeId) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/roles`;
+      const response = await fetchWithAuth(url, 'GET');
+      return response;
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update roles for a store
+   * @param {string} storeId - The ID of the store
+   * @param {Array} values - Array of role values
+   * @returns {Promise} - A promise that resolves to the updated roles
+   */
+  updateRoles: async (storeId, values) => {
+    try {
+      const url = `${API_BASE_URL}/api/v1/enums/${storeId}/roles`;
+      const response = await fetchWithAuth(url, 'PATCH', { values });
+      return response;
+    } catch (error) {
+      console.error('Error updating roles:', error);
       throw error;
     }
   }

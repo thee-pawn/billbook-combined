@@ -13,6 +13,8 @@ import React, { useEffect, useRef, useState } from 'react';
  *  - disabled?: boolean
  *  - className?: string (wrapper)
  *  - dropdownClassName?: string
+ *  - required?: boolean (default false)
+ *  - error?: string (error message to display)
  */
 export const SearchableAddableSelect = ({
   label,
@@ -25,6 +27,8 @@ export const SearchableAddableSelect = ({
   disabled = false,
   className = '',
   dropdownClassName = '',
+  required = false,
+  error,
 }) => {
   const [query, setQuery] = useState(value || '');
   const [open, setOpen] = useState(false);
@@ -58,16 +62,27 @@ export const SearchableAddableSelect = ({
 
   return (
     <div className={`w-full ${className}`} ref={containerRef}>
-      {label && <label className="block text-sm font-medium text-gray-700 mb-1 text-left">{label}</label>}
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
       <div className="relative">
         <input
           type="text"
           disabled={disabled}
           value={query}
-            onFocus={() => !disabled && setOpen(true)}
+          onFocus={() => !disabled && setOpen(true)}
           onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
           placeholder={placeholder}
-          className={`w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+          className={`w-full px-4 py-2 bg-white border rounded-lg focus:outline-none focus:ring-2 transition ${
+            disabled 
+              ? 'opacity-60 cursor-not-allowed border-gray-300' 
+              : error 
+              ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
+              : 'border-gray-300 focus:ring-teal-500 focus:border-teal-500'
+          }`}
         />
         {open && !disabled && (
           <div className={`absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}>
@@ -93,6 +108,7 @@ export const SearchableAddableSelect = ({
           </div>
         )}
       </div>
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };

@@ -426,17 +426,18 @@ const Staff = () => {
 								onClose={() => { handleCloseModals(); setSelectedStaff(null); setFormMode('create'); }}
 								editData={selectedStaff}
 								mode={formMode}
-									onAddStaff={async (payload) => {
+									onAddStaff={async (payload, documentFile) => {
 									if (formMode === 'view') return; // safety
 									try {
 										if (!currentStore?.id) throw new Error('No store selected');
 										if (selectedStaff) {
-											// update flow
-											const res = await staffApi.updateStaff(currentStore.id, selectedStaff.staffId || selectedStaff.id, payload);
+											// update flow - pass document file to updateStaff
+											const res = await staffApi.updateStaff(currentStore.id, selectedStaff.staffId || selectedStaff.id, payload, documentFile);
 											const list = await staffApi.getStaff(currentStore.id);
 											if (list.success) setStaffMembers(list.data);
 										} else {
-											const res = await staffApi.createStaff(currentStore.id, payload);
+											// create flow - pass document file to createStaff
+											const res = await staffApi.createStaff(currentStore.id, payload, documentFile);
 											if (res?.data?.staff) {
 												setStaffMembers(prev => [...prev, res.data.staff]);
 											} else {
@@ -472,3 +473,4 @@ const Staff = () => {
 };
 
 export default Staff;
+
