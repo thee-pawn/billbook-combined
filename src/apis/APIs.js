@@ -17,26 +17,6 @@ export const authApi = {
     login: async (credentials) => {
         try {
             // For mocking during development
-            if (process.env.NODE_ENV === 'development') {
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Mock response for testing different flows
-                if (credentials.phone === "+911234567890") {
-                    return {
-                        requiresMFA: true,
-                        userId: "user123",
-                        message: "OTP sent to your phone number"
-                    };
-                }
-                
-                // Direct login
-                return {
-                    token: "mock-auth-token-123456",
-                    userId: "user123",
-                    message: "Login successful"
-                };
-            }
             
             // Real API call
             const response = await fetch(`${FULL_API_URL}/auth/login`, {
@@ -1243,6 +1223,44 @@ export const staffApi = {
             throw error;
         }
     },
+
+    /**
+     * Get staff members who can perform a specific service
+     * @param {string} storeId - The ID of the store
+     * @param {string} serviceId - The ID of the service
+     * @returns {Promise} - A promise that resolves to the staff list for the service
+     */
+    getByService: async (storeId, serviceId) => {
+        try {
+            if (!storeId || !serviceId) {
+                return { success: false, data: [] };
+            }
+
+            // Use the correct API endpoint: GET /api/v1/staff/{storeId}/by-service/{serviceId}
+            const url = `${FULL_API_URL}/staff/${storeId}/by-service/${serviceId}`;
+            const response = await fetchWithAuth(url, 'GET');
+
+            // Handle the expected response structure: { "staff": [{ "staffId": "...", "name": "..." }] }
+            if (response && Array.isArray(response.staff)) {
+                // Map the response to the format expected by the AppointmentForm component
+                const mappedStaff = response.staff.map(staff => ({
+                    id: staff.staffId,
+                    name: staff.name
+                }));
+
+                return {
+                    success: true,
+                    data: mappedStaff
+                };
+            }
+
+            // If no staff found or invalid response, return empty array
+            return { success: true, data: [] };
+        } catch (error) {
+            console.error('Error fetching staff by service:', error);
+            return { success: false, data: [] };
+        }
+    },
 };
 
 // Customers API
@@ -1716,7 +1734,7 @@ export const appointmentsApi = {
      */
     create: async (storeId, payload) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/appointments`;
+            const url = `${FULL_API_URL}/appointments/store/${storeId}/appointments`;
             // Force status to 'scheduled' for create per requirement
             const body = { ...payload, status: 'scheduled' };
             const response = await fetchWithAuth(url, 'POST', body);
@@ -1732,7 +1750,7 @@ export const appointmentsApi = {
      */
     getById: async (storeId, appointmentId) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/appointments/${appointmentId}`;
+            const url = `${FULL_API_URL}/appointments/store/${storeId}/appointments/${appointmentId}`;
             const response = await fetchWithAuth(url, 'GET');
             return response;
         } catch (error) {
@@ -1747,7 +1765,7 @@ export const appointmentsApi = {
     list: async (storeId, params = {}) => {
         try {
             const query = new URLSearchParams(params).toString();
-            const url = `${FULL_API_URL}/store/${storeId}/appointments${query ? `?${query}` : ''}`;
+            const url = `${FULL_API_URL}/appointments/store/${storeId}/appointments${query ? `?${query}` : ''}`;
             const response = await fetchWithAuth(url, 'GET');
             return response;
         } catch (error) {
@@ -1761,7 +1779,7 @@ export const appointmentsApi = {
      */
     update: async (storeId, appointmentId, payload) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/appointments/${appointmentId}`;
+            const url = `${FULL_API_URL}/appointments/store/${storeId}/appointments/${appointmentId}`;
             const response = await fetchWithAuth(url, 'PUT', payload);
             return response;
         } catch (error) {
@@ -1775,7 +1793,7 @@ export const appointmentsApi = {
      */
     delete: async (storeId, appointmentId) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/appointments/${appointmentId}`;
+            const url = `${FULL_API_URL}/appointments/store/${storeId}/appointments/${appointmentId}`;
             const response = await fetchWithAuth(url, 'DELETE');
             return response;
         } catch (error) {
@@ -1790,7 +1808,7 @@ export const bookingsApi = {
     // Create booking: POST /api/v1/store/{storeId}/bookings
     create: async (storeId, payload) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/bookings`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings`;
             const response = await fetchWithAuth(url, 'POST', payload);
             return response;
         } catch (error) {
@@ -1802,7 +1820,7 @@ export const bookingsApi = {
     list: async (storeId, params = {}) => {
         try {
             const query = new URLSearchParams(params).toString();
-            const url = `${FULL_API_URL}/store/${storeId}/bookings${query ? `?${query}` : ''}`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings${query ? `?${query}` : ''}`;
             const response = await fetchWithAuth(url, 'GET');
             return response;
         } catch (error) {
@@ -1813,7 +1831,7 @@ export const bookingsApi = {
     // Get booking by ID: GET /api/v1/store/{storeId}/bookings/{bookingId}
     getById: async (storeId, bookingId) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/bookings/${bookingId}`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings/${bookingId}`;
             const response = await fetchWithAuth(url, 'GET');
             return response;
         } catch (error) {
@@ -1824,7 +1842,7 @@ export const bookingsApi = {
     // Update booking: PUT /api/v1/store/{storeId}/bookings/{bookingId}
     update: async (storeId, bookingId, payload) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/bookings/${bookingId}`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings/${bookingId}`;
             const response = await fetchWithAuth(url, 'PUT', payload);
             return response;
         } catch (error) {
@@ -1835,7 +1853,7 @@ export const bookingsApi = {
     // Patch status: PATCH /api/v1/store/{storeId}/bookings/{bookingId}/status
     patchStatus: async (storeId, bookingId, status) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/bookings/${bookingId}/status`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings/${bookingId}/status`;
             const response = await fetchWithAuth(url, 'PATCH', { status });
             return response;
         } catch (error) {
@@ -1846,7 +1864,7 @@ export const bookingsApi = {
     // Delete booking (soft): DELETE /api/v1/store/{storeId}/bookings/{bookingId}
     delete: async (storeId, bookingId) => {
         try {
-            const url = `${FULL_API_URL}/store/${storeId}/bookings/${bookingId}`;
+            const url = `${FULL_API_URL}/bookings/store/${storeId}/bookings/${bookingId}`;
             const response = await fetchWithAuth(url, 'DELETE');
             return response;
         } catch (error) {

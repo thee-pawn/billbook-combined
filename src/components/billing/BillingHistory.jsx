@@ -4,12 +4,12 @@ import GenericTable from './../common/GenericTable';
 import Invoice from './Invoice';
 import { Modal } from './../common/Modal';
 import { DeleteConfirmationModal } from '@components/common/DeleteConfirmationModal';
-import { Edit, Edit2, Eye, PencilIcon, Trash2Icon, Upload, X } from 'lucide-react';
+import { Edit, Edit2, Eye, PencilIcon, Trash2Icon, Upload, X, Download } from 'lucide-react';
 import { Drawer } from '@components/common/Drawer';
 import { MultiSelectDropdown } from '@components/common/MultiSelectDropdown';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@components/login/StoreContext';
-import { getBills, getBillById } from '../../apis/billingApi';
+import { getBills, getBillById, deleteBills } from '../../apis/billingApi';
 import { useNotification } from '../../contexts/NotificationContext';
 
 // Icons
@@ -185,12 +185,39 @@ function BillingHistory() {
         setIsDeleteModalOpen(true);
     };
 
-    const confirmDelete = () => {
-        // Add your delete logic here
-        showSuccess(`${billsToDelete.length} invoice(s) deleted successfully!`);
-        setIsDeleteModalOpen(false);
-        setBillsToDelete([]);
-        setSelectedRows([]);
+    const confirmDelete = async () => {
+        try {
+            if (!currentStore?.id || !billsToDelete?.length) {
+                throw new Error('No store ID or bills to delete');
+            }
+
+            // Extract bill IDs from the selected bills
+            const billIds = billsToDelete.map(bill => {
+                // Try to get the bill ID from various possible locations
+                return bill?.id || bill?._raw?.bill_id || bill?._raw?.id || bill?.billNo || bill?._raw?.invoice_number;
+            }).filter(Boolean); // Remove any undefined/null values
+
+            if (billIds.length === 0) {
+                throw new Error('No valid bill IDs found');
+            }
+
+            console.log('Deleting bills with IDs:', billIds);
+
+            // Make a single bulk delete API call
+            await deleteBills(currentStore.id, billIds);
+
+            showSuccess(`${billsToDelete.length} invoice(s) deleted successfully!`);
+
+            // Refresh the bill list after successful deletion
+            await fetchBills();
+        } catch (e) {
+            console.error('Error deleting bills:', e);
+            showError(e?.message || 'Failed to delete bills');
+        } finally {
+            setIsDeleteModalOpen(false);
+            setBillsToDelete([]);
+            setSelectedRows([]);
+        }
     };
 
     const handleFilter = async () => {
@@ -323,7 +350,7 @@ function BillingHistory() {
                 }
                 return true; // Otherwise, match all rows (filter not active)
             },
-            cellRenderer: (row) => `$${row.dues.toFixed(2)}`
+            cellRenderer: (row) => `₹${row.dues.toFixed(2)}`
         },
         {
             id: 'amount',
@@ -331,7 +358,7 @@ function BillingHistory() {
             accessor: 'amount',
             sortable: true,
             textAlign: 'left',
-            cellRenderer: (row) => `$${row.amount.toFixed(2)}`
+            cellRenderer: (row) => `₹${row.amount.toFixed(2)}`
         },
     ];
     const invoiceFilters = ['Non GST Bills', 'GST Bills', 'Due Bills'];
@@ -354,6 +381,42 @@ function BillingHistory() {
         },
     ];
 
+    const exportToCSV = () => {
+        if (!historyData || historyData.length === 0) return;
+
+        // Convert data to CSV format
+        const rows = [
+            [
+                'Bill No',
+                'Billing Date',
+                'Customer Name',
+                'Contact No.',
+                'Dues',
+                'Total Amount',
+                'Payment Mode',
+            ],
+            ...historyData.map(row => [
+                row.billNo,
+                new Date(row.billingDate).toLocaleDateString(),
+                row.customerName,
+                row.customerId,
+                row.dues,
+                row.amount,
+                row.paymentMode,
+            ]),
+        ];
+
+        const csvContent = `data:text/csv;charset=utf-8,${rows.map(e => e.join(",")).join("\n")}`;
+
+        // Create a link to download the CSV file
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `billing_history_${formatDate(new Date())}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="p-4 px-6 ">
       <div className="customer-header">
@@ -368,11 +431,12 @@ function BillingHistory() {
                         Delete Selected ({selectedRows?.length || 0})
                     </button>
                     <button
-                        disabled={!selectedRows || selectedRows.length === 0}
-                        className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        onClick={exportToCSV}
+                        disabled={isLoading || !historyData || historyData.length === 0}
+                        className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg shadow-md hover:shadow-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Upload size={20} />
-                        Export ({selectedRows?.length || 0})
+                        <Download size={16} />
+                        Export to CSV
                     </button>
                 </div>
             </div>

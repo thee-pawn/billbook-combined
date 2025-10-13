@@ -42,7 +42,27 @@ export const AppointmentCompletionConfirmation = ({
 
 function AppointmentForm({ appointment, customers, services: servicesProp, staff, statuses, onSave, onCancel, newAppointment, isReadOnly = false }) {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(appointment);
+
+  // Initialize formData with proper defaults for new appointments
+  const getInitialFormData = () => {
+    if (appointment) return appointment;
+    return {
+      countryCode: '+91',
+      contactNo: '',
+      customerName: '',
+      gender: '',
+      source: '',
+      date: '',
+      time: '',
+      status: 'scheduled',
+      totalAmount: 0,
+      paidAmount: 0,
+      paymentMode: '',
+      notes: ''
+    };
+  };
+
+  const [formData, setFormData] = useState(getInitialFormData());
   const [serviceRows, setServiceRows] = useState([{ serviceId: '', staffId: '' }]);
   const [serviceTime, setServiceTime] = useState(0);
   const { currentStore } = useStore();
@@ -101,7 +121,27 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
 
   // Update form data if the appointment prop changes (e.g., when opening modal for edit/view)
   useEffect(() => {
-    if (!appointment) return;
+    if (!appointment) {
+      // Initialize snapshot for new appointments
+      const defaultSnapshot = {
+        form: {
+          countryCode: '+91',
+          contactNo: '',
+          customerName: '',
+          gender: '',
+          source: '',
+          date: '',
+          time: '',
+          status: 'scheduled',
+          paidAmount: 0,
+          paymentMode: '',
+          notes: ''
+        },
+        rows: [{ serviceId: '', staffId: '' }]
+      };
+      setInitialSnapshot(defaultSnapshot);
+      return;
+    }
     const { code, local } = parsePhone(appointment.phoneNumber || appointment.contactNo);
     const normalizedGender = normalizeGender(appointment.gender) || '';
     const mapped = {
@@ -125,6 +165,12 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
       staffId: s.staffId || s.staff_id || ''
     }));
     setServiceRows(rows.length ? rows : [{ serviceId: '', staffId: '' }]);
+
+    // Calculate service time for existing appointment - FIX: Ensure estimated time is calculated when viewing appointments
+    if (rows.length && services.length) {
+      updateServiceTime(rows);
+    }
+
     // set initial snapshot for dirty tracking (exclude computed totalAmount)
     const snapshot = {
       form: {
@@ -189,7 +235,9 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
       try {
         const res = await storesApi.getAvailability(currentStore.id, date);
         if (!active) return;
-        if (res.success && res.isOpen && res.opening && res.closing) {
+
+        // Only generate slots if store is open AND has valid opening/closing times
+        if (res.success && res.isOpen === true && res.opening && res.closing) {
           const slots = generateSlots(res.opening, res.closing);
           setTimeSlots(slots);
           // If current selected time not in new slots, reset
@@ -197,7 +245,12 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
             setFormData(prev => ({ ...prev, time: '' }));
           }
         } else {
+          // Store is closed or no valid times - no slots available
           setTimeSlots([]);
+          // Clear selected time if store is closed
+          if (formData.time) {
+            setFormData(prev => ({ ...prev, time: '' }));
+          }
         }
       } catch (err) {
         if (active) { setAvailabilityError('Failed to load time slots'); setTimeSlots([]); }
@@ -300,8 +353,8 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
   // Build payload for API submission
   const buildAppointmentPayload = () => {
     const selectedServices = serviceRows
-      .filter(r => r.serviceId && r.staffId)
-      .map(r => ({ serviceId: r.serviceId, staffId: r.staffId }));
+      .filter(r => r.serviceId) // Only require serviceId, staffId is optional
+      .map(r => ({ serviceId: r.serviceId, staffId: r.staffId || null }));
     const totalDurationMinutes = serviceRows.reduce((acc, r) => {
       const svc = services.find(s => s.id === r.serviceId);
       return acc + (svc?.duration || 0);
@@ -324,6 +377,13 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
       notes: formData.notes || ''
     };
   };
+
+  // Recalculate service time when services are loaded (for existing appointments)
+  useEffect(() => {
+    if (services.length && serviceRows.length && serviceRows.some(row => row.serviceId)) {
+      updateServiceTime();
+    }
+  }, [services]); // Only depend on services to avoid infinite loops
 
   // Recalculate total amount whenever selected services or services list changes
   useEffect(() => {
@@ -425,14 +485,14 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
       setAppointmentSaving(true);
       setAppointmentError(null);
       appointmentsApi.create(currentStore.id, payload)
-        .then(res => {
+        .then((res) => {
           if (res?.success) {
             onSave(res);
           } else {
             setAppointmentError(res?.message || 'Failed to create appointment');
           }
         })
-        .catch(err => {
+        .catch((err) => {
           setAppointmentError('Error creating appointment');
           console.error(err);
         })
@@ -447,14 +507,14 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
       setAppointmentError(null);
       const updatePayload = { ...payload, status: formData.status || payload.status || 'scheduled' };
       appointmentsApi.update(currentStore.id, appointment.id, updatePayload)
-        .then(res => {
+        .then((res) => {
           if (res?.success) {
             onSave(res);
           } else {
             setAppointmentError(res?.message || 'Failed to update appointment');
           }
         })
-        .catch(err => {
+        .catch((err) => {
           setAppointmentError('Error updating appointment');
           console.error(err);
         })
@@ -692,12 +752,11 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
             name="staffId"
             value={row.staffId}
             onChange={(e) => handleServiceRowChange(index, 'staffId', e.target.value)}
-            required
             disabled={isReadOnly || !row.serviceId || rowStaffLoading[index]}
             className={inputStyle}
           >
-            <option value="" disabled>
-              { !row.serviceId ? 'Select service first' : rowStaffLoading[index] ? 'Loading staff...' : (rowStaffError[index] ? 'Error loading staff' : (rowStaffOptions[index] && rowStaffOptions[index].length ? 'Select Staff' : 'No staff available')) }
+            <option value="">
+              { !row.serviceId ? 'Select service first' : rowStaffLoading[index] ? 'Loading staff...' : (rowStaffError[index] ? 'Error loading staff' : (rowStaffOptions[index] && rowStaffOptions[index].length ? 'Select Staff (Optional)' : 'No staff available')) }
             </option>
             {!rowStaffLoading[index] && !rowStaffError[index] && rowStaffOptions[index] && rowStaffOptions[index].map(opt => (
               <option key={opt.id} value={opt.id}>{opt.name}</option>
@@ -752,16 +811,16 @@ function AppointmentForm({ appointment, customers, services: servicesProp, staff
           />
         </div>
         <div>
-          <label htmlFor="paymentMode" className={labelStyle + 'justify-center'}>Payment Mode</label>
+          <label htmlFor="paymentMode" className={labelStyle + 'justify-center'}>Payment Mode {formData.paidAmount > 0 && <span style={{ color: "red" }}>*</span>}</label>
           <select
             id="paymentMode"
             name="paymentMode"
             value={formData.paymentMode}
             onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white"
+            required={formData.paidAmount > 0}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white pr-32"
           >
-            <option value="" disabled>Select Payment Mode</option>
+            <option value="">{formData.paidAmount > 0 ? 'Select Payment Mode' : 'No advance payment'}</option>
             <option value="cash">Cash</option>
             <option value="card">Card</option>
             <option value="upi">UPI</option>

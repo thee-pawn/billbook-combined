@@ -267,19 +267,95 @@ function BookingCalendar() {
     setCurrentAppointment(null);
   };
 
-  const handleSaveAppointment = (appointmentData) => {
-    if (appointmentData.id) {
-      setAppointments(appointments.map(appt =>
-        appt.id === appointmentData.id ? { ...appt, ...appointmentData } : appt
-      ));
-    } else {
-      const newAppointment = {
-        ...appointmentData,
-        id: `appt-${Date.now()}`,
-      };
-      setAppointments([...appointments, newAppointment]);
-    }
+  const handleSaveAppointment = async (appointmentData) => {
+    // Close the modal first
     handleCloseModals();
+
+    // Show notification for successful operation
+    if (appointmentData?.success || appointmentData?.id) {
+      showNotification(
+        newAppointment ? 'Appointment created successfully!' : 'Appointment updated successfully!',
+        'success'
+      );
+    }
+
+    // Refetch appointments to ensure calendar shows the latest data
+    if (currentStore?.id && selectedDate) {
+      setLoadingAppointments(true);
+      try {
+        const ymd = selectedDate.toLocaleDateString('en-CA');
+        const res = await appointmentsApi.list(currentStore.id, { date: ymd, limit: 200 });
+
+        // Extract list from various shapes
+        const list = res?.data?.appointments || res?.appointments || res?.data?.items || res?.items || [];
+        const mapToBase = (a) => {
+          const toHM = (iso) => {
+            if (!iso) return null;
+            const d = new Date(iso);
+            return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+          };
+          const rawItems = (a.services || a.items || []);
+          const services = rawItems.map(s => ({ name: s.service_name || s.name || 'Service', duration: s.duration || '' }));
+          // collect all staff ids from services
+          const perServiceStaffIds = Array.from(new Set(rawItems.map(s => s.staff_id || s.staffId).filter(Boolean)));
+          const staffId = a.staff_id || a.staffId || perServiceStaffIds[0] || null;
+          // Prefer explicit time fields, else derive from date_time
+          const startHM = a.time || toHM(a.date_time) || toHM(a.scheduled_at) || '09:00';
+
+          // FIX: Calculate duration properly - sum service durations if total_duration_minutes not available
+          let duration = a.total_duration_minutes || a.duration;
+          console.log(`Appointment ${a.id}: total_duration_minutes=${a.total_duration_minutes}, duration=${a.duration}, services count=${rawItems.length}`);
+
+          if (!duration && rawItems.length > 0) {
+            // Calculate total duration from individual service durations
+            duration = rawItems.reduce((total, service) => {
+              const serviceDuration = service.duration || service.service_duration || 0;
+              console.log(`  Service: ${service.service_name || service.name}, duration=${serviceDuration}`);
+              return total + Number(serviceDuration);
+            }, 0);
+            console.log(`  Calculated total duration from services: ${duration}`);
+          }
+          // Only fallback to 60 if no services or no duration data at all
+          duration = duration || 60;
+          console.log(`  Final duration used: ${duration} minutes`);
+
+          // Compute end time - FIX: Properly calculate end time from start time + duration
+          const [sh, sm] = startHM.split(':').map(n=>parseInt(n,10));
+          const startMinutes = sh * 60 + sm;
+          const endMinutes = startMinutes + Number(duration);
+          const endHours = Math.floor(endMinutes / 60);
+          const endMins = endMinutes % 60;
+          const endHM = `${String(endHours).padStart(2,'0')}:${String(endMins).padStart(2,'0')}`;
+          const base = {
+            appointmentId: a.id,
+            customerName: a.customer_name || a.customerName || a.name || '',
+            contactNo: `${a.country_code || a.countryCode || ''}${a.contact_no || a.contactNo || ''}`,
+            startTime: startHM,
+            endTime: endHM,
+            services,
+            status: normalizeStatus(a.status),
+            date: a.date || (a.date_time ? new Date(a.date_time).toLocaleDateString('en-CA') : ymd)
+          };
+          return { base, perServiceStaffIds, staffId };
+        };
+        // Expand events: if appointment has multiple services with different staff, create one event per staff
+        const expanded = list.flatMap(a => {
+          const { base, perServiceStaffIds, staffId } = mapToBase(a);
+          const ids = perServiceStaffIds.length ? perServiceStaffIds : [staffId];
+          const uniqueIds = Array.from(new Set((ids || []).filter(id => id !== undefined)));
+          if (!uniqueIds.length) {
+            return [{ id: `${base.appointmentId}:unassigned`, staffId: null, ...base }];
+          }
+          return uniqueIds.map(sid => ({ id: `${base.appointmentId}:${sid}`, staffId: sid, ...base }));
+        });
+        setAppointments(expanded);
+      } catch (e) {
+        console.error('Failed to refresh appointments after save', e);
+        showNotification('Failed to refresh calendar. Please reload the page.', 'error');
+      } finally {
+        setLoadingAppointments(false);
+      }
+    }
   };
 
   // Grid click from AppointmentCalendar: laneIndex 0 = Unassigned, 1..N map to filteredStaff[0..N-1]
@@ -395,11 +471,29 @@ function BookingCalendar() {
           const staffId = a.staff_id || a.staffId || perServiceStaffIds[0] || null;
           // Prefer explicit time fields, else derive from date_time
           const startHM = a.time || toHM(a.date_time) || toHM(a.scheduled_at) || '09:00';
-          const duration = a.total_duration_minutes || a.duration || 60;
-          // Compute end time
+
+          // FIX: Calculate duration properly - sum service durations if total_duration_minutes not available
+          let duration = a.totalDurationMinutes || a.duration;
+
+          if (!duration && rawItems.length > 0) {
+            // Calculate total duration from individual service durations
+            duration = rawItems.reduce((total, service) => {
+              const serviceDuration = service.duration || service.service_duration || 0;
+              console.log(`  Service: ${service.service_name || service.name}, duration=${serviceDuration}`);
+              return total + Number(serviceDuration);
+            }, 0);
+
+          }
+          // Only fallback to 60 if no services or no duration data at all
+          duration = duration || 60;
+
+          // Compute end time - FIX: Properly calculate end time from start time + duration
           const [sh, sm] = startHM.split(':').map(n=>parseInt(n,10));
-          const endDate = new Date(); endDate.setHours(sh, sm + Number(duration), 0, 0);
-          const endHM = `${String(endDate.getHours()).padStart(2,'0')}:${String(endDate.getMinutes()).padStart(2,'0')}`;
+          const startMinutes = sh * 60 + sm;
+          const endMinutes = startMinutes + Number(duration);
+          const endHours = Math.floor(endMinutes / 60);
+          const endMins = endMinutes % 60;
+          const endHM = `${String(endHours).padStart(2,'0')}:${String(endMins).padStart(2,'0')}`;
           const base = {
             appointmentId: a.id,
             customerName: a.customer_name || a.customerName || a.name || '',
@@ -558,3 +652,4 @@ function BookingCalendar() {
 }
 
 export default BookingCalendar;
+

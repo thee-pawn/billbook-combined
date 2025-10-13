@@ -263,7 +263,7 @@ export const BookingForm = ({ mode = 'edit', booking, onSave, onCancel }) => {
             remarks: formData.remarks || undefined,
             advance_amount: Number(formData.advancedAmount) || 0,
             payment_mode: String(formData.payMode || 'Cash').toLowerCase(),
-            venue: bookingLevelVenue,
+            // venue: bookingLevelVenue,
             items
         };
     };
@@ -306,7 +306,14 @@ export const BookingForm = ({ mode = 'edit', booking, onSave, onCancel }) => {
 
     // Initialize from booking prop
     useEffect(() => {
-        if (!booking) return;
+        if (!booking) {
+            // For new bookings, set initial snapshot after component mounts
+            const initialFormData = { countryCode: '+91', contactNo: '', customerName: '', gender: '', bookingDateTime: '2025-06-18T22:30', email: '', address: '', venueType: 'Indoor', remarks: '', totalAmount: 0, advancedAmount: 0, payMode: 'Cash', payableAmount: 0 };
+            const initialRows = [{ serviceId: '', serviceName: '', staffId: '', staffName: '', unitPrice: '', quantity: '1', dateTime: '', venue: '' }];
+            setInitialSnapshot(JSON.stringify({ formData: initialFormData, rows: initialRows }));
+            setIsDirty(false);
+            return;
+        }
         // Unwrap/merge common backend getById shapes:
         // 1) { data: { booking, items } }
         // 2) { data: { data: booking } }

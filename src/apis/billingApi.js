@@ -216,6 +216,21 @@ export const getCustomerBills = async (storeId, customerId, options = {}) => {
   return res;
 };
 
+// Delete bills (bulk delete)
+export const deleteBills = async (storeId, billIds) => {
+  const res = await apiRequest(`/api/v1/billing/${storeId}/bills`, withCors({
+    method: 'DELETE',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bill_ids: billIds })
+  }));
+  return res;
+};
+
+// Delete single bill
+export const deleteBill = async (storeId, billId) => {
+  return deleteBills(storeId, [billId]);
+};
+
 // Aliases matching external spec naming
 export const createBill = saveBill; // POST /bills with Idempotency-Key
 export const listBills = getBills;   // GET /bills with query params

@@ -168,7 +168,7 @@ export function EnquiryForm({ mode = 'edit', enquiry, onSave, onCancel }) {
         const v = String(label).trim().toLowerCase();
         if (v === 'service') return 'service';
         if (v === 'membership/package' || v === 'membership-package') return 'membership-package';
-        if (v === 'offer') return 'offer';
+        if (v === 'offer' || v === 'promotion') return 'offer';
         if (v === 'product') return 'product';
         return v;
     };
@@ -212,7 +212,26 @@ export function EnquiryForm({ mode = 'edit', enquiry, onSave, onCancel }) {
 
         // Initialize form from enquiry prop when provided
         useEffect(() => {
-            if (!enquiry) return;
+            if (!enquiry) {
+                // For new enquiries, set initial snapshot with default values
+                const initialFormData = {
+                    contactNo: '',
+                    name: '',
+                    gender: '',
+                    email: '',
+                    sourceOfEnquiry: '',
+                    enquiryType: '',
+                    enquiryStatus: '',
+                    notes: '',
+                    countryCode: '+91',
+                    followUpDate: '',
+                    followUpTime: '',
+                };
+                const initialEnquiries = [{ id: 1, enquiryForCategory: '', enquiryForSpecific: '' }];
+                setInitialSnapshot(JSON.stringify({ formData: initialFormData, enquiries: initialEnquiries }));
+                setIsDirty(false);
+                return;
+            }
             const parseISOToDateTime = (iso) => {
                 if (!iso) return { d: '', t: '' };
                 const dt = new Date(iso);
@@ -677,4 +696,3 @@ export function EnquiryForm({ mode = 'edit', enquiry, onSave, onCancel }) {
 
 
 // --- Main Enquiry Form Component ---
-
